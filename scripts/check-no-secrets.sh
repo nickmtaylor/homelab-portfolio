@@ -11,7 +11,7 @@
 set -euo pipefail
 
 diff_output="$(git diff --cached -U0 -- . ':!scripts/check-no-secrets.sh')"
-added_lines="$(echo "$diff_output" | grep -E '^\+' | grep -Ev '^\+\+\+')"
+added_lines="$(echo "$diff_output" | grep -E '^\+' | grep -Ev '^\+\+\+' || true)"
 
 fail=0
 
