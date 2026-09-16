@@ -1,0 +1,30 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=10
+      - TZ=America/New_York
+      # Host headers Homepage will accept requests for.
+      # LAN IP:port for direct access, plus the public domain (no port —
+      # the browser's own Host header omits it on the default HTTPS port).
+      # Add both or Homepage 403s.
+      - HOMEPAGE_ALLOWED_HOSTS=192.168.1.16:3000,dash.nmtaylor.org
+    env_file:
+      - .env
+    volumes:
+      - /volume1/docker/appdata/homepage:/app/config
+      # No Docker socket mount here anymore — the "container:" field in
+      # services.yaml (status dots) goes through docker-socket-proxy at
+      # 127.0.0.1:2375 instead (see appdata/docker.yaml). No group_add
+      # needed either: a plain HTTP request to a TCP port doesn't need
+      # any special permission the way a Unix socket does. See
+      # compose/docker-socket-proxy/ — must be deployed first.
+    restart: unless-stopped
+
+# custom.css and custom.js live in /volume1/docker/appdata/homepage/ alongside
+# settings.yaml — Homepage's current config/custom.css + config/custom.js
+# mechanism reads them straight from the config volume above. No separate
+# "public" mount or extra volume is needed.

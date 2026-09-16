@@ -1,0 +1,15 @@
+---
+# https://gethomepage.dev/configs/info-widgets/
+# Intentionally empty. `resources` (CPU/RAM/disk as a flat text strip)
+# and `search` (DuckDuckGo web search box) were removed first, per
+# feedback that the native info-widget "toolbar" styling didn't fit and
+# the search box had no real purpose here. `datetime` and `openmeteo`
+# (date/time + weather) were removed next, once the custom "System"
+# panel absorbed them as its own date/time/weather block — keeping both
+# would've shown the same clock and weather twice. Everything this file
+# used to hold — CPU/RAM/disk/temp, history graphs, date/time, weather —
+# now comes from the System panel (custom.js + compose/glances/'s
+# collector, which proxies Open-Meteo server-side the same way this
+# widget used to). Quick-launch search across your own services is
+# still there (the "⌕" button, custom.js) — only the generic web-search
+# box is gone.

@@ -1,0 +1,209 @@
+---
+# https://gethomepage.dev/configs/services/
+# Group names must match settings.yaml `layout:` exactly.
+# `container:` on each entry lights up a green/red status dot from the
+# read-only Docker socket mount — independent of the widget integration.
+
+- Infrastructure:
+    - Caddy:
+        icon: caddy.png
+        href: https://192.168.1.16:9443
+        description: Reverse proxy — TLS termination
+        server: my-docker
+        container: caddy
+
+    - Cloudflare DDNS:
+        icon: cloudflare.png
+        description: Keeps A records pointed at current WAN IP
+        server: my-docker
+        container: cloudflare-ddns
+
+    - Vaultwarden:
+        icon: vaultwarden.png
+        href: https://vault.nmtaylor.org
+        description: Password vault (via Cloudflare Tunnel)
+        server: my-docker
+        container: vaultwarden
+
+- Smart Home:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: http://192.168.1.16:8123
+        description: Smart home automation platform
+        widget:
+          type: homeassistant
+          url: "{{HOMEPAGE_VAR_HASS_URL}}"
+          key: "{{HOMEPAGE_VAR_HASS_KEY}}"
+
+- Monitoring:
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: http://192.168.1.16:3001
+        description: Uptime monitoring
+        widget:
+          type: uptimekuma
+          url: "{{HOMEPAGE_VAR_KUMA_URL}}"
+          slug: "{{HOMEPAGE_VAR_KUMA_SLUG}}"
+
+    # Kopia card removed for now — no configured repo/snapshot schedule yet
+    # (current offsite copy is a manual rsync-style clone to the LaCie
+    # drive, not a Kopia repository). Add it back once Kopia's actually
+    # standing up snapshots; container: kopia is all you'll need for the
+    # status dot, plus a widget block once it has a server API exposed.
+
+- Media Library:
+    - Jellyfin:
+        icon: jellyfin.png
+        href: https://media.nmtaylor.org
+        description: Primary media streaming library
+        server: my-docker
+        container: jellyfin
+        widget:
+          type: jellyfin
+          url: "{{HOMEPAGE_VAR_JELLYFIN_URL}}"
+          key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
+          enableBlocks: true
+          enableNowPlaying: true
+          # Jellyfin 12.0 (confirmed via your container's own image label)
+          # dropped the legacy /emby/* compatibility routes Homepage's
+          # widget uses by default — confirmed by your curl returning 404
+          # on /emby/Sessions. version: 2 switches to the native Sessions
+          # / Items/Counts paths with header-based auth instead.
+          version: 2
+
+# Docker Stacks — one card per docker-compose project, container count +
+# updates-available count. Backed by a small collector that reads What's Up
+# Docker's API (stacks-collector, in compose/wud/) — NOT deployed yet; see
+# DEPLOYMENT.md "Part 3". Every card below will show zeros/errors until
+# that project is up. Project list matches what's actually on the NAS
+# (confirmed via /Volumes/docker) as of this section being added — add or
+# remove a card here (and a matching group in stacks-collector's output)
+# whenever you add or retire a compose project.
+- Docker Stacks:
+    - homepage:
+        icon: mdi-package-variant-closed
+        description: This dashboard
+        widget:
+          type: customapi
+          url: http://127.0.0.1:9100/stacks/homepage
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - domain_infra:
+        icon: mdi-package-variant-closed
+        description: Caddy, cloudflare-ddns
+        widget:
+          type: customapi
+          url: http://127.0.0.1:9100/stacks/domain_infra
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - vaultwarden:
+        icon: mdi-package-variant-closed
+        description: Vaultwarden, cloudflared tunnel
+        widget:
+          type: customapi
+          url: http://127.0.0.1:9100/stacks/vaultwarden
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - home-assistant:
+        icon: mdi-package-variant-closed
+        description: Home Assistant
+        widget:
+          type: customapi
+          url: http://127.0.0.1:9100/stacks/home-assistant
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - jellyfin:
+        icon: mdi-package-variant-closed
+        description: Jellyfin
+        widget:
+          type: customapi
+          url: http://127.0.0.1:9100/stacks/jellyfin
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - uptime-kuma:
+        icon: mdi-package-variant-closed
+        description: Uptime Kuma
+        widget:
+          type: customapi
+          url: http://127.0.0.1:9100/stacks/uptime-kuma
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - kopia:
+        icon: mdi-package-variant-closed
+        description: Kopia backup server
+        widget:
+          type: customapi
+          # Actual WUD-reported project name is "kopia_backups", not
+          # "kopia" — the compose folder is named "kopia" but UGOS's
+          # Docker GUI evidently registered the project under a
+          # different name. Confirmed via curl http://127.0.0.1:9100/stacks.
+          url: http://127.0.0.1:9100/stacks/kopia_backups
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number
+
+    - wud:
+        icon: mdi-package-variant-closed
+        description: What's Up Docker (checks the others for updates)
+        widget:
+          type: customapi
+          # Live project name is "wud-stacks-collector", not "wud" —
+          # confirmed via /containers/json on the proxy after the
+          # container was recreated. Compose folder is still "wud"; this
+          # is a UGOS project-naming thing, same as Kopia's mismatch.
+          url: http://127.0.0.1:9100/stacks/wud-stacks-collector
+          refreshInterval: 60000
+          mappings:
+            - field: containers
+              label: Containers
+              format: number
+            - field: updates_available
+              label: Updates
+              format: number

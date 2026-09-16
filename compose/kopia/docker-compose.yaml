@@ -1,0 +1,45 @@
+services:
+  kopia:
+    image: kopia/kopia:latest
+    container_name: kopia
+    hostname: nas-kopia
+    network_mode: host
+    restart: unless-stopped
+    # Rebuilt 2026-09 after months of crash-looping. Root cause (confirmed
+    # via appdata/kopia/logs/cli-logs/latest.log on the live NAS): the old
+    # repository.config pointed at a "filesystem" repository under
+    # /repository (bind-mounted from /mnt/kopia-backup), which was never
+    # actually a live mount on the NAS — every "server start" failed with
+    # "BLOB not found" trying to open a repository that was never really
+    # there. The offsite copy was, in practice, still a manual LaCie clone.
+    #
+    # Fix: the repository now lives directly in a Cloudflare R2 bucket
+    # (S3-compatible), so there's no local disk dependency at all — see
+    # this folder's README.md for the one-time bootstrap (`kopia repository
+    # create s3 ...`) that has to be run on the NAS before this container
+    # will come up clean, plus the Cloudflare-side setup steps.
+    #
+    # Also worth knowing if you're ever cross-referencing the Docker
+    # Stacks panel: this folder is named "kopia", but the container's own
+    # Compose project label WUD reports is "kopia_backups" — a real
+    # mismatch, left as-is rather than renaming the folder and having to
+    # move live NAS files to match.
+    environment:
+      - TZ=America/New_York
+      - KOPIA_PASSWORD=${KOPIA_PASSWORD}
+      - USER=nmtaylor
+    command:
+      - server
+      - start
+      - --disable-csrf-token-checks
+      - --insecure
+      - --address=0.0.0.0:51515
+      - --server-username=nmtaylor
+      - --server-password=${KOPIA_SERVER_PASSWORD}
+    volumes:
+      - /volume1/docker/appdata/kopia/config:/app/config
+      - /volume1/docker/appdata/kopia/cache:/app/cache
+      - /volume1/docker/appdata/kopia/logs:/app/logs
+      - /volume1/docker:/data/docker:ro
+      - /home/nmtaylor:/data/personal:ro
+      - /volume1/docker/appdata/kopia/tmp:/tmp:shared

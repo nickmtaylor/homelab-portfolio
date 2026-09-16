@@ -1,0 +1,35 @@
+services:
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: docker-socket-proxy
+    # Deliberately NOT network_mode: host, unlike everything else in this
+    # stack — host mode bypasses Docker's port publishing entirely, which
+    # would put this on the LAN instead of localhost-only. Bridge + an
+    # explicit 127.0.0.1 publish is the only way to actually keep it off
+    # the network, which is the whole point of this container.
+    ports:
+      - "127.0.0.1:2375:2375"
+    environment:
+      - LOG_LEVEL=info
+      # Read-only: only GET/HEAD allowed, no state-changing calls at all.
+      - POST=0
+      # Minimum scope for what currently depends on this: Homepage's
+      # container: status dots (CONTAINERS, INFO) and WUD's update
+      # checking (CONTAINERS, IMAGES, EVENTS). Everything else — AUTH,
+      # SECRETS, EXEC, BUILD, SWARM, VOLUMES, NETWORKS, etc. — stays at
+      # its default of 0 (revoked). If something new needs another API
+      # section once it's pointed at this proxy, it'll fail closed with
+      # a 403 rather than silently working — add the specific env var
+      # for that section rather than widening this broadly.
+      - CONTAINERS=1
+      - INFO=1
+      - IMAGES=1
+      - EVENTS=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # Required per the image's own docs: connecting to the Docker socket
+    # is a privileged operation under SELinux/AppArmor confinement, and
+    # this is the one container in the stack meant to hold that access
+    # so nothing else has to.
+    privileged: true
+    restart: unless-stopped

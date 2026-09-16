@@ -1,0 +1,11 @@
+# Real secrets never get committed — only the .env.template/.env.example
+# files (placeholders) are tracked.
+.env
+**/secrets.yml
+
+# A raw, periodically-refreshed copy of what's actually on the NAS —
+# real secrets included. Never meant to be committed; exists purely for
+# local `diff` against compose/ (see scripts/refresh-live-snapshot.sh).
+live-snapshot/
+
+.DS_Store

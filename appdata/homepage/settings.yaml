@@ -1,0 +1,52 @@
+---
+# https://gethomepage.dev/configs/settings/
+title: nmtaylor.org
+theme: dark
+color: slate
+headerStyle: boxed
+target: _blank
+
+# Visual settings ported from the GexZ LabZ theme — pairs with custom.css.
+cardBlur: lg
+useEqualHeights: true
+hideVersion: true
+statusStyle: dot
+bookmarksStyle: icons
+iconStyle: theme
+
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+
+# Setting `tab:` on these groups is what turns them into the Home/Media
+# tabs instead of one long scrolling page. Order here controls tab order,
+# left to right.
+layout:
+  - Infrastructure:
+      tab: Home
+      style: row
+      columns: 3
+  - Smart Home:
+      tab: Home
+      style: row
+      columns: 2
+  - Monitoring:
+      tab: Home
+      style: row
+      columns: 2
+  - Media Automation:
+      tab: Media
+      style: row
+      columns: 4
+  - Downloads:
+      tab: Media
+      style: row
+      columns: 2
+  - Media Library:
+      tab: Media
+      style: row
+      columns: 2
+  - Docker Stacks:
+      tab: Home
+      style: row
+      columns: 4

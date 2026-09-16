@@ -1,0 +1,13 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=10
+    volumes:
+      - /volume1/docker/appdata/jellyfin/cache:/cache
+      - /volume1/docker/appdata/jellyfin/config:/config
+      - /volume1/media:/media:ro
+    restart: unless-stopped

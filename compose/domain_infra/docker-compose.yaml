@@ -1,0 +1,24 @@
+services:
+
+  caddy:
+    image: caddy-cloudflare:latest
+    container_name: caddy
+    network_mode: host
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+    volumes:
+      - /volume1/docker/appdata/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /volume1/docker/appdata/caddy/data:/data
+      - /volume1/docker/appdata/caddy/config:/config
+    restart: unless-stopped
+
+  cloudflare-ddns:
+    image: favonia/cloudflare-ddns:latest
+    container_name: cloudflare-ddns
+    network_mode: host
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - DOMAINS=media.nmtaylor.org
+      - PROXIED=false
+      - IP6_PROVIDER=none
+    restart: unless-stopped

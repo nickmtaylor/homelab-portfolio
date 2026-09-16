@@ -1,0 +1,384 @@
+/* ==========================================================================
+   nmtaylor.org dashboard theme
+   High-contrast dark theme with one accent color per Docker stack section.
+   Supersedes the earlier "black-luxe"/GexZ-derived theme entirely — this is
+   a from-scratch direction (see the design draft artifact from this
+   project's history for the full mockup this is built from).
+
+   Section accents are POSITION-based, not name-based — confirmed against
+   Homepage's real source (src/pages/index.jsx): because every group in
+   settings.yaml has an explicit `layout:` entry, all of them render inside
+   `#layout-groups` (NOT `#services`, which only holds groups with no
+   layout entry — never true for us). Homepage also only ever puts the
+   ACTIVE TAB's groups in the DOM at once — switching tabs re-renders the
+   list, it doesn't just hide/show a static one. That means `nth-of-type`
+   position resets per tab, so a single global 1-7 mapping across all
+   groups is impossible: position 1 is Infrastructure on the Home tab
+   AND Media Automation on the Media tab, and CSS has no way to tell
+   those apart structurally. So the mapping below is 4 POSITION colors
+   (1-4), reused across tabs, not 7 unique per-group colors:
+     Home tab:  1 Infrastructure, 2 Smart Home, 3 Monitoring, 4 Docker Stacks
+     Media tab: 1 Media Automation, 2 Downloads, 3 Media Library
+   Media Automation ends up blue (same slot as Infrastructure), Downloads
+   amber, Media Library violet — reused, not each getting a unique color.
+   If you want every group to keep a stable identity color regardless of
+   which tab it's on, that needs a small custom.js addition tagging each
+   group by name (not done here — ask if you want it).
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --bg: oklch(12% 0.01 260);
+  --surface: oklch(19% 0.014 260);
+  --surface-2: oklch(24% 0.016 260);
+  --border: oklch(45% 0.02 260 / 40%);
+  --border-soft: oklch(45% 0.02 260 / 22%);
+  --text: oklch(97% 0.004 260);
+  --muted: oklch(68% 0.02 260);
+  --good: oklch(72% 0.18 150);
+  --warn: oklch(76% 0.16 70);
+
+  /* Position accents (see note above — reused across tabs by DOM slot,
+     not unique per named group). pos-1..3 apply on both tabs; pos-4 only
+     exists on the Home tab (4 groups there vs. 3 on Media). */
+  --pos-1: oklch(68% 0.19 250); /* slot 1 — blue   (Infrastructure / Media Automation) */
+  --pos-2: oklch(76% 0.16 70);  /* slot 2 — amber  (Smart Home / Downloads) */
+  --pos-3: oklch(68% 0.19 300); /* slot 3 — violet (Monitoring / Media Library) */
+  --pos-4: oklch(70% 0.19 330); /* slot 4 — magenta (Docker Stacks, Home tab only) */
+  --accent-1: var(--pos-1); /* kept as an alias — used elsewhere (e.g. the search button) as the primary UI accent */
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body) !important;
+  color: var(--text) !important;
+  background-color: var(--bg) !important;
+  background-image: radial-gradient(1100px 480px at 50% -220px, oklch(21% 0.018 260) 0%, var(--bg) 60%) !important;
+  background-attachment: fixed !important;
+  overflow-x: hidden !important;
+}
+
+.container {
+  max-width: 1500px !important;
+}
+
+/* Headings and stat numbers read from the display face; everything else
+   from the body face. Homepage doesn't expose a selector for "the biggest
+   number on a widget card" independent of its label, so this targets what
+   we can reliably reach — service/group names and the tab bar. */
+.service-group-name,
+.service-name,
+#myTab button {
+  font-family: var(--font-display) !important;
+}
+
+/* ==================== TABS ==================== */
+#myTab button {
+  font-weight: 600 !important;
+  color: var(--muted) !important;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease !important;
+}
+#myTab button:hover {
+  color: var(--text) !important;
+  border-color: oklch(68% 0.19 250 / 55%) !important;
+}
+/* Real Homepage marks the active tab with aria-selected="true", not a
+   .active class (confirmed against src/components/tab.jsx) — the old
+   .active selector here never matched anything. */
+#myTab button[aria-selected="true"] {
+  color: var(--text) !important;
+  background: oklch(68% 0.19 250 / 15%) !important;
+  border-color: oklch(68% 0.19 250 / 60%) !important;
+  box-shadow: inset 0 0 8px oklch(68% 0.19 250 / 20%) !important;
+}
+
+/* ==================== CARDS ==================== */
+.service-card, .bookmark-card, .widget-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 24px -4px oklch(0% 0 0 / 45%) !important;
+  transition: transform .15s ease, background-color .15s ease !important;
+}
+.service-card:hover, .bookmark-card:hover, .widget-card:hover {
+  transform: translateY(-2px) !important;
+  background-color: var(--surface-2) !important;
+  border-color: oklch(60% 0.02 260 / 55%) !important;
+}
+
+.service-group-name {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+.status-dot.online {
+  background-color: var(--good) !important;
+  box-shadow: 0 0 8px oklch(72% 0.18 150 / 60%) !important;
+}
+
+/* Real wrapper is #layout-groups, confirmed against Homepage's source —
+   every group in settings.yaml has a `layout:` entry, which routes it
+   there, not to #services (that only holds groups with NO layout entry).
+   No width/stacking override needed here: #layout-groups is natively a
+   row-wrap flex container, and `style: row` on each group in
+   settings.yaml already makes it claim the full row on its own. An
+   earlier version of this file forced flex-direction: column on top of
+   that, which flips which axis `flex-basis: 100%` applies to — instead
+   of 100% width, each group claimed 100% of the parent's height, which
+   is why only the first group ever rendered and everything after it
+   silently collapsed. Removed. */
+
+/* ==================== PER-SECTION ACCENTS (position-based — see note
+   at the top of this file for why) ==================== */
+#layout-groups > .services-group:nth-of-type(1) .service-group-name,
+#layout-groups > .services-group:nth-of-type(1) .service-card { border-top-color: var(--pos-1) !important; }
+#layout-groups > .services-group:nth-of-type(1) .service-group-name { color: var(--pos-1) !important; }
+
+#layout-groups > .services-group:nth-of-type(2) .service-group-name,
+#layout-groups > .services-group:nth-of-type(2) .service-card { border-top-color: var(--pos-2) !important; }
+#layout-groups > .services-group:nth-of-type(2) .service-group-name { color: var(--pos-2) !important; }
+
+#layout-groups > .services-group:nth-of-type(3) .service-group-name,
+#layout-groups > .services-group:nth-of-type(3) .service-card { border-top-color: var(--pos-3) !important; }
+#layout-groups > .services-group:nth-of-type(3) .service-group-name { color: var(--pos-3) !important; }
+
+#layout-groups > .services-group:nth-of-type(4) .service-group-name,
+#layout-groups > .services-group:nth-of-type(4) .service-card { border-top-color: var(--pos-4) !important; }
+#layout-groups > .services-group:nth-of-type(4) .service-group-name { color: var(--pos-4) !important; }
+
+.service-card { border-top-width: 2px !important; }
+
+/* ==================== QUICK-LAUNCH SEARCH (see custom.js) ==================== */
+.qs-trigger {
+  position: fixed !important;
+  bottom: 22px !important;
+  right: 22px !important;
+  z-index: 4000 !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: var(--surface-2) !important;
+  border: 1px solid oklch(68% 0.19 250 / 40%) !important;
+  color: var(--accent-1) !important;
+  font-family: var(--font-body) !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 40%) !important;
+  cursor: pointer !important;
+}
+.qs-trigger:hover {
+  background: var(--surface) !important;
+  border-color: oklch(68% 0.19 250 / 65%) !important;
+}
+
+.qs-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 5000 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding-top: 14vh !important;
+  background: oklch(12% 0.01 260 / 60%) !important;
+  backdrop-filter: blur(4px) !important;
+}
+.qs-overlay[hidden] { display: none !important; }
+
+.qs-box {
+  width: min(560px, calc(100vw - 48px)) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 24px 80px oklch(0% 0 0 / 50%) !important;
+  overflow: hidden !important;
+}
+.qs-input {
+  width: 100% !important;
+  height: 48px !important;
+  padding: 0 16px !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border-soft) !important;
+  outline: none !important;
+  color: var(--text) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.9rem !important;
+}
+.qs-results { max-height: 360px !important; overflow: auto !important; padding: 6px !important; }
+.qs-item {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 9px 10px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  color: var(--text) !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+.qs-item:hover, .qs-item.selected { background: var(--surface-2) !important; }
+.qs-item strong { font-size: .82rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qs-item small { display: block; margin-top: 2px; color: var(--muted) !important; font-size: .68rem !important; }
+.qs-empty { padding: 16px !important; color: var(--muted) !important; font-size: .8rem !important; text-align: center !important; }
+
+/* ==================== SYSTEM PANEL (see custom.js) ====================
+   Rendered as document.body's first child, in normal document flow
+   ahead of Homepage's own React root — not position:fixed, so it just
+   pushes everything else down naturally with no JS-computed offset
+   needed.
+
+   No standalone header/label row and no background of its own (see
+   below) — both were removed per feedback that the panel read as a
+   separate colored band bolted onto the top of the page rather than
+   blending in like everything else. The background was the bigger part
+   of that: `body` paints a soft radial-gradient glow near the top of
+   the page, but this panel used to paint a second, flat `var(--bg)`
+   rectangle directly over it (it's the first thing in the DOM, so it's
+   the first thing painted), which blocked that glow from ever showing
+   behind the stat cards — a real, visible seam, not just imagined. Now
+   it's transparent, so the same body background shows straight through. */
+#system-panel {
+  width: 100%;
+}
+#system-panel .sys-inner {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 20px 24px 4px;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+}
+#system-panel .sys-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+#system-panel .sys-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--pos-1);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+#system-panel .sys-stat-plain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+#system-panel .sys-stat-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+#system-panel .sys-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+#system-panel .sys-label {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+#system-panel .sys-value-storage {
+  /* Renders as "#.## TB used / #.## TB remaining", too long for the
+     same large numeral treatment other stats use. */
+  font-size: 15px;
+  line-height: 1.3;
+}
+#system-panel .sys-stat-datetime {
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+}
+#system-panel .sys-weather-icon-wrap {
+  width: 22px;
+  height: 22px;
+  color: var(--pos-1);
+  margin-bottom: 2px;
+}
+#system-panel .sys-weather-icon {
+  width: 100%;
+  height: 100%;
+}
+#system-panel .sys-datetime {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+#system-panel .sys-weather {
+  font-size: 12px;
+  color: var(--muted);
+}
+#system-panel .sys-stat-storage {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+#system-panel .sys-storage-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#system-panel .sys-donut-wrap {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+}
+#system-panel .sys-donut {
+  width: 100%;
+  height: 100%;
+}
+#system-panel .sys-donut-track { stroke: var(--border); }
+#system-panel .sys-donut-value { stroke: var(--pos-1); stroke-linecap: round; }
+#system-panel .sys-chart-wrap {
+  height: 46px;
+}
+#system-panel .sys-chart {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+#system-panel .sys-chart polyline {
+  fill: none;
+  stroke: var(--pos-1);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#system-panel .sys-chart-empty {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+@media (max-width: 1100px) {
+  #system-panel .sys-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  #system-panel .sys-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  #system-panel .sys-stats { grid-template-columns: 1fr; }
+}

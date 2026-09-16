@@ -1,0 +1,11 @@
+---
+# https://gethomepage.dev/configs/docker/
+# Every service entry using `container:` in services.yaml also needs
+# `server: my-docker` pointing at this host — the name alone isn't enough.
+# Points at docker-socket-proxy (compose/docker-socket-proxy/), not the
+# raw socket — confirmed against Homepage's own source
+# (utils/config/docker.js): a `host` + `port` entry here becomes a plain
+# HTTP connection, same as dockerode would use for any remote Docker API.
+my-docker:
+  host: 127.0.0.1
+  port: 2375

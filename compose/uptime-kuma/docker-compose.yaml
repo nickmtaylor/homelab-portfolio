@@ -1,0 +1,9 @@
+services:
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /volume1/docker/appdata/uptime-kuma:/app/data

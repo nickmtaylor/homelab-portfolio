@@ -1,0 +1,10 @@
+services:
+  home-assistant:
+    image: homeassistant/home-assistant:latest
+    container_name: homeassistant
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - /volume1/docker/appdata/home-assistant:/config

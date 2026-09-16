@@ -1,0 +1,32 @@
+# Append this as a new site block in your existing Caddyfile
+# (/volume1/docker/appdata/caddy/Caddyfile — confirmed against the live
+# file, not /volume1/docker/caddy/Caddyfile as an earlier draft assumed).
+# The global block with `auto_https disable_redirects` at the top already
+# covers this — don't duplicate it.
+#
+# Basic auth is included because Homepage has no built-in login of its own
+# (verified against the current docs — unlike Jellyfin/Home Assistant,
+# which each have their own app-level login). Caddy's basic_auth is the
+# only way to put a password in front of this dashboard at all, and it's
+# worth having: Homepage will show status/queue data pulled with your
+# backend services' API keys, plus links to LAN-only tools.
+# Generate the hash with: docker exec caddy caddy hash-password
+
+dash.nmtaylor.org:8443 {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+
+    encode zstd gzip
+
+    basicauth {
+        nick <bcrypt-hash-from-caddy-hash-password>
+    }
+
+    reverse_proxy 127.0.0.1:3000 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+    }
+}

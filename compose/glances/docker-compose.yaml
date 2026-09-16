@@ -1,0 +1,86 @@
+services:
+  glances:
+    image: nicolargo/glances:latest-full
+    container_name: glances
+    # No pid: host — that's in Glances' official example for its
+    # per-process CPU/memory breakdown (a "top processes" feature),
+    # which nothing we actually call needs. The 4 endpoints this project
+    # uses (cpu/mem/fs/sensors) all read kernel-wide /proc and /sys
+    # counters, not per-process data, so PID-namespace sharing isn't
+    # required for accurate readings. (Removing this alone did NOT clear
+    # UGOS's "Invalid configuration file" rejection — see below.)
+    #
+    # No read_only/tmpfs either, matching how WUD itself (also a
+    # third-party image with a real web server, not one of this
+    # project's own small scripts) was left unhardened — that hardening
+    # pattern was only ever applied to the small Python collectors this
+    # project wrote, not to third-party images with real runtime needs.
+    # tmpfs was also, like pid, untested anywhere else in this project.
+    #
+    # Deliberately NOT network_mode: host, same reasoning as
+    # docker-socket-proxy: keeps this off the LAN. Glances' own web UI
+    # shows detailed process/system data, which is worth keeping
+    # localhost-only even though it's read-only.
+    ports:
+      - "127.0.0.1:61208:61208"
+    environment:
+      - TZ=America/New_York
+      # -w: REST API + web UI, both on 61208. No docker.sock mount here —
+      # WUD already covers container status/updates, so Glances doesn't
+      # need Docker API access at all, one less thing with socket access.
+      - GLANCES_OPT=-w
+    volumes:
+      # /volume1 specifically, not a bare host-root mount (was
+      # "- /:/rootfs:ro") — that turned out to be the actual cause of
+      # the "Invalid configuration file" rejection (see DEPLOYMENT.md).
+      # This is also just a better design on its own merits: every other
+      # mount in this whole project targets a specific /volume1/... path,
+      # never the bare host root, and it makes the collector's disk
+      # lookup exact instead of a "guess the biggest one" heuristic.
+      - /volume1:/mnt/volume1:ro
+    restart: unless-stopped
+
+  system-metrics-collector:
+    image: python:3.13-alpine
+    container_name: system-metrics-collector
+    network_mode: host
+    user: "1000:10"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - GLANCES_URL=http://127.0.0.1:61208
+      # Deliberately 0.0.0.0, not the collector script's own 127.0.0.1
+      # default — custom.js fetches this straight from the viewer's
+      # browser, not from another container, so it has to be reachable
+      # on the LAN. Read-only hardware stats, no control capability —
+      # low-risk exception to the localhost-only pattern used elsewhere.
+      - METRICS_BIND=0.0.0.0
+    # WEATHER_LATITUDE/LONGITUDE live in .env, not here — same real
+    # coordinates already sitting in Homepage's own .env
+    # (HOMEPAGE_VAR_WEATHER_LATITUDE/LONGITUDE), just copied over. Kept
+    # server-side and fetched from here (not from custom.js in the
+    # browser) on purpose: the native openmeteo widget this panel
+    # replaces also fetched server-side, so the browser never received
+    # the home coordinates directly — reusing that pattern here avoids
+    # regressing it just because the panel moved.
+    env_file:
+      - .env
+    volumes:
+      - /volume1/docker/appdata/glances/collector/system_metrics_collector.py:/app/system_metrics_collector.py:ro
+    command: ["python3", "/app/system_metrics_collector.py"]
+    restart: unless-stopped
+    depends_on:
+      - glances
+
+# Deploy AFTER Homepage/docker-socket-proxy/WUD are confirmed working —
+# see DEPLOYMENT.md. system-metrics-collector keeps its own short history
+# in memory (CPU% and CPU temp, a 2-minute rolling window) rather than
+# relying on Glances' own /history API, which doesn't track total CPU
+# (only its user/system sub-components) and has unclear support for
+# sensor history at all — polling the plain snapshot endpoints and
+# keeping our own ring buffer sidesteps both problems.

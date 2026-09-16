@@ -1,0 +1,50 @@
+services:
+  whatsupdocker:
+    image: getwud/wud:latest
+    container_name: wud
+    network_mode: host
+    environment:
+      - TZ=America/New_York
+      # Homepage already owns port 3000 (network_mode: host means every
+      # container shares the NAS's own ports) — WUD's own default is also
+      # 3000, so it's moved here to avoid the collision.
+      - WUD_SERVER_PORT=3002
+      # Points WUD's default "local" watcher at docker-socket-proxy
+      # instead of a raw socket mount — confirmed against WUD's own
+      # source (watchers/providers/docker/Docker.ts): host+port config
+      # is a first-class option, not a workaround. Must be deployed
+      # first — see compose/docker-socket-proxy/.
+      - WUD_WATCHER_LOCAL_HOST=127.0.0.1
+      - WUD_WATCHER_LOCAL_PORT=2375
+    env_file:
+      - .env
+    volumes:
+      - /volume1/docker/appdata/wud:/store
+    restart: unless-stopped
+
+  stacks-collector:
+    image: python:3.13-alpine
+    container_name: wud-stacks-collector
+    network_mode: host
+    user: "1000:10"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - WUD_URL=http://127.0.0.1:3002
+    env_file:
+      - .env
+    volumes:
+      - /volume1/docker/appdata/wud/collector/stacks_collector.py:/app/stacks_collector.py:ro
+    command: ["python3", "/app/stacks_collector.py"]
+    restart: unless-stopped
+    depends_on:
+      - whatsupdocker
+
+# Deploy AFTER Homepage is confirmed working — see DEPLOYMENT.md "Part 3".
+# stacks-collector reuses WUD's own admin credentials (WUD_USER/WUD_PASS in
+# .env) to call WUD's REST API; it needs no Docker socket access of its own.

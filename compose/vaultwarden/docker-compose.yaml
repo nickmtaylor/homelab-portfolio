@@ -1,0 +1,22 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+      - DOMAIN=https://vault.nmtaylor.org
+      - SIGNUPS_ALLOWED=false
+      - WEBSOCKET_ENABLED=true
+      - ROCKET_PORT=8222
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+    volumes:
+      - /volume1/docker/appdata/vaultwarden:/data
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: vault-tunnel
+    network_mode: host
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}

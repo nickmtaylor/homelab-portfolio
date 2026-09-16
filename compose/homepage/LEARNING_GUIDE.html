@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding Your Homepage Dashboard — A Study Guide</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #151b23;
+    --surface-2: #1c2530;
+    --border: #2a3441;
+    --text: #e6edf3;
+    --muted: #8b96a3;
+    --blue: #58a6ff;
+    --amber: #d29922;
+    --violet: #bc8cff;
+    --green: #3fb950;
+    --red: #f85149;
+    --code-bg: #0a0e14;
+    --font-body: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .layout {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  nav#toc {
+    flex: 0 0 300px;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 28px 18px;
+    border-right: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  nav#toc .toc-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 14px;
+    letter-spacing: 0.02em;
+  }
+  nav#toc ol { list-style: none; margin: 0; padding: 0; }
+  nav#toc ol.parts { padding-left: 0; }
+  nav#toc ol.parts > li { margin-bottom: 14px; }
+  nav#toc .part-link { font-weight: 600; color: var(--text); display: block; margin-bottom: 4px; }
+  nav#toc ol.sub { padding-left: 14px; border-left: 1px solid var(--border); }
+  nav#toc ol.sub li { margin-bottom: 5px; }
+  nav#toc ol.sub a { color: var(--muted); }
+  nav#toc ol.sub a:hover { color: var(--blue); }
+  main {
+    flex: 1 1 auto;
+    padding: 40px 56px 120px;
+    min-width: 0;
+  }
+  .doc-header {
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .doc-header h1 {
+    font-size: 32px;
+    margin: 0 0 10px;
+  }
+  .doc-header p {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 720px;
+  }
+  section { margin-bottom: 56px; }
+  section.part { padding-top: 8px; }
+  h2 {
+    font-size: 26px;
+    margin-top: 0;
+    padding-top: 24px;
+    border-top: 2px solid var(--border);
+    color: var(--text);
+  }
+  section.part:first-of-type h2 { border-top: none; padding-top: 0; }
+  h3 {
+    font-size: 20px;
+    margin-top: 36px;
+    color: var(--blue);
+  }
+  h4 {
+    font-size: 16px;
+    margin-top: 24px;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  p { max-width: 780px; }
+  ul, ol { max-width: 760px; }
+  li { margin-bottom: 6px; }
+  code {
+    font-family: var(--font-mono);
+    background: var(--surface-2);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: #ffd580;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    max-width: 900px;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: #d3dce6;
+  }
+  .cm { color: #6a7684; }              /* comments */
+  .kw { color: #ff7b72; }              /* keywords */
+  .str { color: #a5d6ff; }             /* strings */
+  .num { color: #79c0ff; }             /* numbers */
+  .fn { color: #d2a8ff; }              /* function/tag names */
+  .attr { color: #7ee787; }            /* attribute/property names */
+  .callout {
+    max-width: 780px;
+    margin: 18px 0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border-left: 4px solid var(--border);
+    background: var(--surface);
+    font-size: 15px;
+  }
+  .callout.why { border-left-color: var(--blue); }
+  .callout.gotcha { border-left-color: var(--amber); }
+  .callout.real { border-left-color: var(--violet); }
+  .callout.debug { border-left-color: var(--red); }
+  .callout .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .callout.why .tag { color: var(--blue); }
+  .callout.gotcha .tag { color: var(--amber); }
+  .callout.real .tag { color: var(--violet); }
+  .callout.debug .tag { color: var(--red); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout code { max-width: 100%; }
+  table {
+    border-collapse: collapse;
+    max-width: 780px;
+    margin: 16px 0;
+    font-size: 14.5px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th { background: var(--surface); color: var(--text); }
+  td { color: var(--muted); }
+  .fpath { font-family: var(--font-mono); color: #ffd580; font-size: 0.9em; }
+  .checklist { max-width: 760px; }
+  .checklist li { margin-bottom: 10px; }
+  hr.section-break { border: none; border-top: 1px dashed var(--border); margin: 32px 0; }
+  .glossary dt { font-weight: 700; color: var(--text); margin-top: 14px; font-family: var(--font-mono); }
+  .glossary dd { color: var(--muted); margin: 4px 0 0; max-width: 700px; }
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; }
+    nav#toc {
+      position: static;
+      height: auto;
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    main { padding: 28px 20px 100px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav id="toc">
+  <div class="toc-title">Contents</div>
+  <ol class="parts">
+    <li><a class="part-link" href="#intro">Introduction</a></li>
+    <li>
+      <a class="part-link" href="#part1">Part 1 — The Web's Building Blocks</a>
+      <ol class="sub">
+        <li><a href="#html">1.1 HTML</a></li>
+        <li><a href="#css">1.2 CSS</a></li>
+        <li><a href="#js">1.3 JavaScript</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part2">Part 2 — YAML &amp; Configuration</a>
+      <ol class="sub">
+        <li><a href="#yaml-basics">2.1 YAML syntax</a></li>
+        <li><a href="#compose-yaml">2.2 Docker Compose YAML</a></li>
+        <li><a href="#homepage-yaml">2.3 Homepage's own YAML files</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part3">Part 3 — Networking &amp; HTTP</a>
+      <ol class="sub">
+        <li><a href="#net-basics">3.1 Clients, servers, ports</a></li>
+        <li><a href="#dns-proxy">3.2 DNS, reverse proxies, TLS</a></li>
+        <li><a href="#cors">3.3 Same-origin policy &amp; CORS</a></li>
+        <li><a href="#docker-net">3.4 Docker networking</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part4">Part 4 — How Homepage Works</a>
+      <ol class="sub">
+        <li><a href="#react-basics">4.1 What React/Next.js is doing</a></li>
+        <li><a href="#reconciliation">4.2 The Virtual DOM &amp; reconciliation</a></li>
+        <li><a href="#custom-loading">4.3 How custom.css/custom.js get loaded</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part5">Part 5 — Just Enough Python</a>
+      <ol class="sub">
+        <li><a href="#py-basics">5.1 Variables, dicts, functions</a></li>
+        <li><a href="#py-threading">5.2 Threads and locks</a></li>
+        <li><a href="#py-tour">5.3 Guided tour of a collector script</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part6">Part 6 — This Project, End to End</a>
+      <ol class="sub">
+        <li><a href="#architecture">6.1 The full architecture</a></li>
+        <li><a href="#dataflow">6.2 Data-flow walkthroughs</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part7">Part 7 — Debugging Case Studies</a>
+      <ol class="sub">
+        <li><a href="#case-compose">7.1 The three-round compose rejection</a></li>
+        <li><a href="#case-cors">7.2 The CORS bug</a></li>
+        <li><a href="#case-scroll">7.3 The scroll-container bug</a></li>
+        <li><a href="#case-socket">7.4 The docker socket permission saga</a></li>
+      </ol>
+    </li>
+    <li>
+      <a class="part-link" href="#part8">Part 8 — Debugging It Yourself</a>
+      <ol class="sub">
+        <li><a href="#checklist">8.1 A general troubleshooting checklist</a></li>
+        <li><a href="#sources">8.2 Where to find ground truth</a></li>
+      </ol>
+    </li>
+    <li><a class="part-link" href="#glossary">Glossary</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<div class="doc-header">
+  <h1>Understanding Your Homepage Dashboard</h1>
+  <p>A study guide covering everything underneath the Homepage dashboard project (<code>homelab/compose/homepage/</code> + <code>homelab/appdata/homepage/</code>) — the languages, the concepts, and the specific decisions made while building it — written so you can read the code yourself next time and actually know what you're looking at. It assumes zero prior knowledge of YAML, HTML, CSS, JavaScript, Docker, or networking, and builds everything up from there using your own project's real files as the examples.</p>
+</div>
+
+<section id="intro">
+  <h2>Introduction</h2>
+  <p>Everything in this dashboard is built from a small number of ideas repeated over and over. Once you can read:</p>
+  <ul>
+    <li>a YAML file (used for Homepage's config <em>and</em> Docker Compose),</li>
+    <li>a bit of HTML/CSS (what the page looks like),</li>
+    <li>a bit of JavaScript (what happens after the page loads — fetching data, updating numbers, drawing charts),</li>
+    <li>and a Docker Compose file (what containers exist, how they talk to each other),</li>
+  </ul>
+  <p>...you can read almost every file in this project. That's the goal of this guide: not to make you a professional web developer, but to get you fluent enough in each of these to open any file here, understand what it's doing and why, and make a confident change yourself.</p>
+  <p>Each section below uses <strong>real excerpts from your own project</strong> rather than made-up examples, and includes callout boxes like these:</p>
+  <div class="callout why"><span class="tag">Why it matters</span><p>Explains the reasoning behind a design choice — why we did it this way instead of some other way.</p></div>
+  <div class="callout gotcha"><span class="tag">Gotcha</span><p>A rule that's easy to get wrong, or a place this project actually got bitten by it.</p></div>
+  <div class="callout real"><span class="tag">In this project</span><p>Points you at the actual file and line where a concept shows up for real.</p></div>
+  <div class="callout debug"><span class="tag">Debugging story</span><p>A real bug hit during this build, told as a lesson, not just trivia.</p></div>
+</section>
+
+<!-- ======================================================================
+     PART 1 — WEB BUILDING BLOCKS
+====================================================================== -->
+<section class="part" id="part1">
+  <h2>Part 1 — The Web's Building Blocks</h2>
+  <p>A web page is three separate layers stacked on top of each other, and keeping them mentally separate is the single most useful habit for reading any web project:</p>
+  <table>
+    <tr><th>Layer</th><th>Job</th><th>Question it answers</th></tr>
+    <tr><td>HTML</td><td>Structure</td><td>What <em>elements</em> exist on the page, and how are they nested?</td></tr>
+    <tr><td>CSS</td><td>Presentation</td><td>What do those elements <em>look like</em> — color, size, position?</td></tr>
+    <tr><td>JavaScript</td><td>Behavior</td><td>What <em>happens</em> — on click, on load, on a timer, on data arriving?</td></tr>
+  </table>
+  <p>Your dashboard's page is mostly generated automatically by the Homepage application (written in a framework called React/Next.js, covered in Part 4). The parts <em>you</em> wrote by hand are <span class="fpath">appdata/custom.css</span> (presentation) and <span class="fpath">appdata/custom.js</span> (behavior) — Homepage loads both and lets them add to what it already built.</p>
+
+  <section id="html">
+    <h3>1.1 HTML — HyperText Markup Language</h3>
+    <p>HTML describes structure using <strong>tags</strong>. A tag is a keyword in angle brackets, and most tags come in an opening/closing pair that wraps content:</p>
+    <pre><code>&lt;<span class="fn">div</span>&gt;Hello&lt;/<span class="fn">div</span>&gt;</code></pre>
+    <p>This creates one element: a <code>div</code> (a generic container, no special meaning) containing the text "Hello". Tags can nest inside each other, which is what creates the <strong>DOM tree</strong> — "DOM" stands for Document Object Model, and it's just the name for "the tree of elements that currently makes up the page." Every element has exactly one parent (except the very top one) and can have any number of children:</p>
+    <pre><code>&lt;<span class="fn">div</span> id=<span class="str">"system-panel"</span>&gt;
+  &lt;<span class="fn">div</span> class=<span class="str">"sys-inner"</span>&gt;
+    &lt;<span class="fn">div</span> class=<span class="str">"sys-stats"</span>&gt;
+      &lt;<span class="fn">div</span> class=<span class="str">"sys-stat"</span>&gt;
+        &lt;<span class="fn">span</span> class=<span class="str">"sys-value"</span> id=<span class="str">"sys-cpu"</span>&gt;10.9%&lt;/<span class="fn">span</span>&gt;
+        &lt;<span class="fn">span</span> class=<span class="str">"sys-label"</span>&gt;CPU&lt;/<span class="fn">span</span>&gt;
+      &lt;/<span class="fn">div</span>&gt;
+    &lt;/<span class="fn">div</span>&gt;
+  &lt;/<span class="fn">div</span>&gt;
+&lt;/<span class="fn">div</span>&gt;</code></pre>
+    <p>This is the actual shape of your System panel's CPU card. Reading it top to bottom: a <code>div</code> with <code>id="system-panel"</code> contains a <code>div</code> with <code>class="sys-inner"</code>, which contains <code>sys-stats</code>, which contains one <code>sys-stat</code> per card, each holding a <code>span</code> for the number and one for the label.</p>
+
+    <h4>Attributes</h4>
+    <p>Inside the opening tag, <code>name="value"</code> pairs are <strong>attributes</strong> — extra information about that specific element. The two you'll see constantly:</p>
+    <ul>
+      <li><code>class="..."</code> — a label used to group elements for styling. Many elements can share the same class.</li>
+      <li><code>id="..."</code> — a unique name for exactly <em>one</em> element on the page. Used both for styling a single specific thing, and for JavaScript to find it (<code>document.getElementById('sys-cpu')</code> — more in 1.3).</li>
+    </ul>
+    <div class="callout gotcha"><span class="tag">Gotcha</span><p><code>id</code> must be unique on the page. If two elements share an id, <code>document.getElementById()</code> will only ever find the first one — this is a real, silent bug source, not a style preference.</p></div>
+
+    <h4>Block vs. inline elements, and the tags that actually matter here</h4>
+    <table>
+      <tr><th>Tag</th><th>Meaning</th><th>Notice</th></tr>
+      <tr><td><code>&lt;div&gt;</code></td><td>Generic block container</td><td>No meaning of its own — a box you style with CSS</td></tr>
+      <tr><td><code>&lt;span&gt;</code></td><td>Generic inline container</td><td>Same idea as div, but doesn't force a line break — used for CPU's number vs. label so they sit side by side</td></tr>
+      <tr><td><code>&lt;svg&gt;</code></td><td>Scalable Vector Graphics</td><td>Draws shapes with math instead of pixels — this is how the CPU sparkline and the storage donut chart are drawn (see 1.2/1.3)</td></tr>
+      <tr><td><code>&lt;script&gt;</code></td><td>Runs JavaScript</td><td>Homepage uses this to load <code>custom.js</code> — see Part 4.3</td></tr>
+      <tr><td><code>&lt;head&gt;</code> / <code>&lt;body&gt;</code></td><td>The two halves of every page</td><td><code>head</code> holds metadata (title, stylesheets, some scripts) that isn't itself visible; <code>body</code> holds everything you actually see</td></tr>
+    </table>
+    <div class="callout real"><span class="tag">In this project</span><p>The question "why is the CPU/temp/weather panel showing up in <code>&lt;head&gt;</code> instead of <code>&lt;body&gt;</code>" from earlier in this project was really two separate things confused for one: the <code>&lt;script src="/api/config/custom.js"&gt;</code> tag that <em>loads</em> your code legitimately sits in <code>&lt;head&gt;</code> (Homepage puts it there), but the actual panel <code>&lt;div&gt;</code> your code <em>builds</em> is explicitly inserted into <code>&lt;body&gt;</code> (now, more precisely, into a scrolling container inside body — see Part 7.3). A script tag living in <code>&lt;head&gt;</code> says nothing about where the DOM it creates ends up.</p></div>
+  </section>
+
+  <section id="css">
+    <h3>1.2 CSS — Cascading Style Sheets</h3>
+    <p>CSS answers "what does it look like." Every rule has the same shape:</p>
+    <pre><code><span class="fn">selector</span> {
+  <span class="attr">property</span>: value;
+  <span class="attr">property</span>: value;
+}</code></pre>
+    <p>The <strong>selector</strong> picks which element(s) the rule applies to. The <strong>declarations</strong> inside the braces set properties on those elements. Real example, from <span class="fpath">appdata/custom.css</span>:</p>
+    <pre><code><span class="fn">#system-panel .sys-value</span> {
+  <span class="attr">font-family</span>: var(--font-display);
+  <span class="attr">font-weight</span>: 700;
+  <span class="attr">font-size</span>: 26px;
+  <span class="attr">color</span>: var(--text);
+}</code></pre>
+
+    <h4>Selectors — how CSS finds elements</h4>
+    <table>
+      <tr><th>Selector</th><th>Matches</th><th>Example from this project</th></tr>
+      <tr><td><code>tag</code></td><td>Every element of that tag</td><td><code>body { ... }</code></td></tr>
+      <tr><td><code>.classname</code></td><td>Every element with that class</td><td><code>.service-card { ... }</code></td></tr>
+      <tr><td><code>#id</code></td><td>The one element with that id</td><td><code>#system-panel { ... }</code></td></tr>
+      <tr><td><code>A B</code> (space)</td><td>Any <code>B</code> <em>inside</em> an <code>A</code>, at any depth</td><td><code>#system-panel .sys-value</code> — any element with class <code>sys-value</code>, anywhere inside the element with id <code>system-panel</code></td></tr>
+      <tr><td><code>A &gt; B</code></td><td>Any <code>B</code> that is a <em>direct child</em> of <code>A</code> — not a grandchild</td><td><code>#layout-groups &gt; .services-group</code></td></tr>
+      <tr><td><code>A:nth-of-type(N)</code></td><td>The Nth sibling of that tag inside its parent</td><td><code>.services-group:nth-of-type(1)</code> — the 1st group on the page</td></tr>
+      <tr><td><code>A[attr="value"]</code></td><td>Elements with a specific attribute value</td><td><code>#myTab button[aria-selected="true"]</code> — the currently-active tab button</td></tr>
+    </table>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>Early in this project, the section header colors weren't applying at all. The CSS used <code>#services &gt; .services-group:nth-of-type(N)</code>, but Homepage actually renders every group into a <em>different</em> container, <code>#layout-groups</code>, whenever that group has a <code>layout:</code> entry in <code>settings.yaml</code> (which yours all do). <code>#services</code> only holds groups with <em>no</em> layout entry — so the selector was silently matching nothing. The fix was purely about knowing which real container the actual HTML uses, which is why Part 4 exists in this guide: you can't get selectors right by guessing, you have to know the real structure.</p></div>
+    <div class="callout gotcha"><span class="tag">Gotcha</span><p>The active-tab styling had the same kind of bug: the CSS looked for a class like <code>.active</code>, but Homepage marks the selected tab with the attribute <code>aria-selected="true"</code>, not a class at all. <code>aria-*</code> attributes exist for accessibility (screen readers), but plenty of real apps piggyback on them as regular state markers too — always worth checking for when a class-based selector mysteriously matches nothing.</p></div>
+
+    <h4>The cascade &amp; specificity (why "cascading")</h4>
+    <p>If two rules match the same element and set the same property, CSS needs a tiebreaker. Roughly, in order:</p>
+    <ol>
+      <li><strong>Specificity</strong> — an id selector (<code>#foo</code>) beats a class selector (<code>.foo</code>), which beats a tag selector (<code>div</code>). More specific wins regardless of file order.</li>
+      <li><strong><code>!important</code></strong> — a declaration marked this way overrides normal specificity rules entirely.</li>
+      <li><strong>Source order</strong> — if specificity ties, whichever rule appears later in the CSS wins.</li>
+    </ol>
+    <div class="callout real"><span class="tag">In this project</span><p><span class="fpath">custom.css</span> uses <code>!important</code> on the <code>body</code> rule (font, color, background) deliberately — Homepage's own built-in stylesheet also sets those properties, and without <code>!important</code>, whichever one happens to load second would win unpredictably. It's a blunt tool, appropriate here because you're deliberately overriding someone else's styles, not fighting your own.</p></div>
+
+    <h4>The box model</h4>
+    <p>Every element is a rectangle made of four nested layers, from the inside out: <strong>content</strong>, <strong>padding</strong> (space inside the border), <strong>border</strong>, and <strong>margin</strong> (space outside the border, between this element and its neighbors).</p>
+    <pre><code><span class="fn">.sys-stat</span> {
+  <span class="attr">padding</span>: 12px 16px;      <span class="cm">/* space inside the card, before the border */</span>
+  <span class="attr">border</span>: 1px solid var(--border);
+  <span class="attr">border-radius</span>: 12px;     <span class="cm">/* rounds the corners */</span>
+}</code></pre>
+    <p><code>padding: 12px 16px</code> is shorthand: two values means "top/bottom, then left/right." Four values (<code>10px 20px 4px 24px</code>) means top, right, bottom, left, clockwise from the top.</p>
+
+    <h4>Flexbox — arranging things in a row or column</h4>
+    <p>Flexbox is a layout mode for arranging a group of children along one axis, distributing space between them. You turn it on with <code>display: flex</code> on the <em>parent</em>, then control the children:</p>
+    <pre><code><span class="fn">.sys-stat-plain</span> {
+  <span class="attr">display</span>: flex;
+  <span class="attr">flex-direction</span>: column;  <span class="cm">/* stack children vertically instead of side-by-side */</span>
+  <span class="attr">gap</span>: 4px;                 <span class="cm">/* space between children */</span>
+  <span class="attr">justify-content</span>: center;  <span class="cm">/* center along the main axis */</span>
+}</code></pre>
+    <p>The default <code>flex-direction</code> is <code>row</code> (children side by side, left to right). Setting it to <code>column</code> stacks them top to bottom instead. This one property change is exactly what caused a real bug in this project:</p>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>Every section after the first used to collapse into a sliver at the top of the page. The cause: <code>#layout-groups</code> is a flex container that Homepage <em>already</em> sets to wrap rows (each service group claims a full row's width via its own <code>style: row</code> setting), but <span class="fpath">custom.css</span> was forcing <code>flex-direction: column</code> on it. That flips which axis "full width" (<code>flex-basis: 100%</code>) applies to — from horizontal to vertical — so only the very first group ever got any space, and everything after it got squeezed to nothing. The fix was simply deleting the override; the default row behavior was already correct. Lesson: when you don't know why a container is arranged the way it is, don't assume — check what layout mode it's already using before adding your own.</p></div>
+
+    <h4>Grid — arranging things in rows <em>and</em> columns</h4>
+    <p>Grid is flexbox's two-dimensional sibling — instead of one line of items, you get an actual row/column layout. This is exactly how the five System-panel cards are laid out:</p>
+    <pre><code><span class="fn">#system-panel .sys-stats</span> {
+  <span class="attr">display</span>: grid;
+  <span class="attr">grid-template-columns</span>: repeat(5, minmax(0, 1fr));
+  <span class="attr">gap</span>: 12px;
+}</code></pre>
+    <p><code>repeat(5, minmax(0, 1fr))</code> means "5 columns, each allowed to shrink to 0 but otherwise sharing the space equally" (<code>fr</code> = "fraction of the remaining space" — <code>1fr 1fr 1fr 1fr 1fr</code> is the same thing written out). At narrower screen widths, media queries (below) switch this to fewer, wider columns so cards don't get crushed on a phone.</p>
+
+    <h4>Media queries — different rules at different screen sizes</h4>
+    <pre><code>@media (max-width: 900px) {
+  <span class="fn">#system-panel .sys-stats</span> { <span class="attr">grid-template-columns</span>: repeat(2, minmax(0, 1fr)); }
+}</code></pre>
+    <p>Everything inside <code>@media (max-width: 900px) { ... }</code> only applies when the browser's viewport is 900px wide or narrower. <span class="fpath">custom.css</span> stacks three of these (1100px, 900px, 520px breakpoints) so the 5-column grid degrades to 3, then 2, then a single column as the screen shrinks — this is what "responsive design" means in practice: the same HTML, restyled at different widths, rather than separate mobile/desktop pages.</p>
+
+    <h4>Custom properties (CSS variables)</h4>
+    <pre><code><span class="fn">:root</span> {
+  <span class="attr">--bg</span>: oklch(12% 0.01 260);
+  <span class="attr">--pos-1</span>: oklch(68% 0.19 250); <span class="cm">/* blue */</span>
+}
+<span class="fn">body</span> {
+  <span class="attr">background-color</span>: var(<span class="attr">--bg</span>) !important;
+}</code></pre>
+    <p><code>--name: value;</code> defines a variable; <code>var(--name)</code> reads it back. Defining them once on <code>:root</code> (the <code>&lt;html&gt;</code> element — the outermost possible scope) means every color in the theme lives in exactly one place. Change <code>--pos-1</code> once, and every blue accent across the whole dashboard updates together.</p>
+    <div class="callout why"><span class="tag">Why it matters</span><p>This is why the theme could be redesigned "from scratch" as a single coherent pass rather than hunting down every hardcoded color individually — the whole palette is ~10 variables, and everything else just references them.</p></div>
+
+    <h4><code>oklch()</code> — a more perceptually even color format</h4>
+    <p><code>oklch(68% 0.19 250)</code> describes a color with three numbers: <strong>Lightness</strong> (0–100%, how bright/dark), <strong>Chroma</strong> (0+, how saturated/vivid), and <strong>Hue</strong> (0–360°, the color wheel angle — 250° is blue, 70° is amber/orange, 300° is violet, 330° is magenta). It's a newer alternative to the more familiar <code>rgb()</code>/<code>hex</code> formats; its advantage is that bumping the Lightness number by, say, 10 actually looks like a consistent, equal jump in brightness across every hue — which made it much easier to keep the 4 section-accent colors (blue/amber/violet/magenta) feeling equally bright and equally saturated as a matched set, instead of eyeballing four unrelated hex codes.</p>
+
+    <h4>Pseudo-classes: <code>:hover</code>, <code>:nth-of-type()</code></h4>
+    <p>A pseudo-class selects an element based on a <em>state</em> or <em>position</em> rather than an attribute:</p>
+    <pre><code><span class="fn">.qs-item:hover</span> { <span class="attr">background</span>: var(--surface-2) !important; }</code></pre>
+    <p>This rule only applies while the mouse is actually over that element — CSS handles the "restore it when the mouse leaves" part automatically, no JavaScript needed.</p>
+  </section>
+
+  <section id="js">
+    <h3>1.3 JavaScript</h3>
+    <p>Everything CSS/HTML can't do — reacting to events, fetching data over the network, drawing dynamic charts, running on a timer — is JavaScript's job. It's the only one of these three languages that actually <em>runs</em> (executes step by step); HTML and CSS just get read and displayed.</p>
+
+    <h4>Variables</h4>
+    <pre><code><span class="kw">const</span> METRICS_PORT = 9200;   <span class="cm">// cannot be reassigned later</span>
+<span class="kw">let</span> selected = -1;          <span class="cm">// can be reassigned</span></code></pre>
+    <p>Modern JavaScript almost never uses the older <code>var</code> keyword. Use <code>const</code> by default; use <code>let</code> only for a value that's genuinely going to change (like a counter or a "currently selected" index).</p>
+
+    <h4>Functions</h4>
+    <pre><code><span class="kw">function</span> <span class="fn">fmt</span>(value, suffix = <span class="str">''</span>) {
+  <span class="kw">return</span> <span class="kw">typeof</span> value === <span class="str">'number'</span> ? `${value}${suffix}` : <span class="str">'—'</span>;
+}</code></pre>
+    <p>This reads: "define a function named <code>fmt</code>, taking a <code>value</code> and an optional <code>suffix</code> (defaulting to an empty string if not given). If <code>value</code> is a number, return it glued to the suffix; otherwise return an em-dash." The <code>? :</code> is a <strong>ternary</strong> — a compact <code>if/else</code> that produces a value: <code>condition ? valueIfTrue : valueIfFalse</code>.</p>
+    <p>Template literals — backtick strings like <code>`${value}${suffix}`</code> — let you embed expressions directly inside a string using <code>${...}</code>, instead of gluing pieces together with <code>+</code>. This project uses them constantly for building both text and HTML strings.</p>
+
+    <h4>Arrow functions</h4>
+    <pre><code><span class="kw">const</span> safe = (value) => <span class="fn">String</span>(value ?? <span class="str">''</span>).replace(/[&amp;&lt;&gt;'"]/g, c => ({...}[c]));</code></pre>
+    <p><code>(params) => expression</code> is a shorter way to write a function, common for small one-off functions passed to other functions (like the <code>c => ...</code> above, used inside <code>.replace()</code>). <code>??</code> is the "nullish coalescing" operator — <code>a ?? b</code> means "<code>a</code>, unless it's <code>null</code>/<code>undefined</code>, in which case <code>b</code>."</p>
+
+    <h4>Objects, arrays, and JSON</h4>
+    <pre><code><span class="kw">const</span> weather = { <span class="attr">available</span>: <span class="kw">true</span>, <span class="attr">temp</span>: 63, <span class="attr">condition</span>: <span class="str">'Clear'</span> };
+weather.temp        <span class="cm">// 63 — dot notation to read a property</span>
+
+<span class="kw">const</span> disks = [ { <span class="attr">mount</span>: <span class="str">'/mnt/volume1'</span>, <span class="attr">percent</span>: 62.8 } ];
+disks[0].percent    <span class="cm">// 62.8 — square brackets + index for arrays</span></code></pre>
+    <p>An <strong>object</strong> is a set of named key/value pairs (<code>{ key: value, ... }</code>). An <strong>array</strong> is an ordered list (<code>[item, item, ...]</code>), indexed from 0. <strong>JSON</strong> (JavaScript Object Notation) is a text format for writing exactly this — every API response in this project (Glances, WUD, the two Python collectors) is JSON, which is why it looks identical to JavaScript object/array syntax; that's not a coincidence, JSON was modeled directly on it.</p>
+
+    <h4>The DOM API — reading and changing the page from code</h4>
+    <table>
+      <tr><th>Call</th><th>Does</th></tr>
+      <tr><td><code>document.getElementById('sys-cpu')</code></td><td>Finds the one element with that <code>id</code></td></tr>
+      <tr><td><code>document.querySelector('.qs-input')</code></td><td>Finds the first element matching a CSS selector</td></tr>
+      <tr><td><code>document.querySelectorAll('a[href]')</code></td><td>Finds <em>every</em> matching element, as a list</td></tr>
+      <tr><td><code>document.createElement('div')</code></td><td>Creates a brand-new element, not yet attached to the page</td></tr>
+      <tr><td><code>parent.appendChild(el)</code></td><td>Attaches <code>el</code> as the parent's last child</td></tr>
+      <tr><td><code>parent.insertBefore(el, ref)</code></td><td>Attaches <code>el</code> right before <code>ref</code> inside parent</td></tr>
+      <tr><td><code>el.textContent = '...'</code></td><td>Sets an element's visible text (safely — special characters are shown literally, never run as HTML)</td></tr>
+      <tr><td><code>el.innerHTML = '...'</code></td><td>Sets an element's contents by <em>parsing a string as HTML</em> — powerful, but only ever do this with content you trust</td></tr>
+    </table>
+    <div class="callout gotcha"><span class="tag">Gotcha</span><p><code>innerHTML</code> and <code>textContent</code> look similar but are not interchangeable. <code>textContent</code> is always safe for untrusted text (user input, API data) because it never interprets its argument as markup. <code>innerHTML</code> parses its argument as real HTML — if that string ever contained something like <code>&lt;img onerror="...">&lt;/img&gt;</code> from an untrusted source, it would actually execute. This project uses <code>innerHTML</code> deliberately in a few places (building the panel's initial markup, injecting a generated SVG chart) because that content is entirely code-generated from numbers, never from unescaped external text — and uses <code>textContent</code> everywhere it's placing a value that ultimately came from an API response.</p></div>
+    <div class="callout real"><span class="tag">In this project</span><p>The quick-launch search palette's <code>safe()</code> function exists purely to make one specific <code>innerHTML</code> call safe: it HTML-escapes a service's name before dropping it into a template string, precisely because that name is read off the live page (via <code>querySelectorAll</code>) rather than typed by you — defense in depth, even though in practice it's your own Homepage content.</p></div>
+
+    <h4>Events</h4>
+    <pre><code>trigger.addEventListener(<span class="str">'click'</span>, open);
+input.addEventListener(<span class="str">'keydown'</span>, event => {
+  <span class="kw">if</span> (event.key === <span class="str">'Escape'</span>) close();
+});</code></pre>
+    <p><code>element.addEventListener('eventName', handlerFunction)</code> says "run this function whenever this event happens on this element." Common events: <code>click</code>, <code>keydown</code> (a key was pressed — check <em>which</em> one via <code>event.key</code>), <code>input</code> (a text field's value changed).</p>
+
+    <h4>Asynchronous code: Promises, <code>async</code>/<code>await</code>, and <code>fetch()</code></h4>
+    <p>Network requests take time and JavaScript doesn't want to freeze the whole page while waiting. A <strong>Promise</strong> is a placeholder for "a value that will exist eventually, or an error." <code>async</code>/<code>await</code> is syntax that lets you write code that <em>waits</em> for a promise as if it were a normal synchronous line, without actually blocking anything else on the page:</p>
+    <pre><code><span class="kw">async function</span> <span class="fn">fetchJSON</span>(path) {
+  <span class="kw">const</span> response = <span class="kw">await</span> fetch(`${metricsBase()}${path}`, { cache: <span class="str">'no-store'</span> });
+  <span class="kw">if</span> (!response.ok) <span class="kw">throw new</span> Error(String(response.status));
+  <span class="kw">return</span> response.json();
+}</code></pre>
+    <p><code>fetch(url)</code> starts an HTTP request and returns a promise for the response. <code>await</code> pauses <em>this function</em> (not the whole browser) until that promise resolves. <code>response.ok</code> is <code>true</code> for any 2xx HTTP status; anything else (404, 500, etc.) is treated as failure and an error is thrown deliberately, so the caller's <code>try/catch</code> can handle it. <code>response.json()</code> is itself asynchronous too (parsing the body takes a moment), hence a second <code>await</code>-worthy call — though here it's returned directly, and the caller awaits the whole function.</p>
+    <p>A function marked <code>async</code> always returns a promise, and any code that calls it typically needs its own <code>await</code> (or a <code>.catch()</code>) to deal with success/failure — this is why almost every function in <span class="fpath">custom.js</span>'s System panel section is <code>async</code>, all the way up.</p>
+
+    <h4>Error handling: <code>try</code>/<code>catch</code></h4>
+    <pre><code><span class="kw">try</span> {
+  <span class="kw">const</span> current = <span class="kw">await</span> fetchJSON(<span class="str">'/system'</span>);
+  <span class="cm">// ...use it...</span>
+} <span class="kw">catch</span> (_) {
+  <span class="cm">// the collector is unreachable, or returned bad JSON — fail quietly</span>
+}</code></pre>
+    <p>Code inside <code>try { }</code> runs normally; if <em>any</em> line inside it throws an error, execution immediately jumps to <code>catch (error) { }</code> instead of crashing the whole script. The <code>(_)</code> here is a deliberate convention for "we're catching this on purpose but don't need to inspect the error object" — an underscore as a variable name signals "intentionally unused" to anyone reading it later.</p>
+
+    <h4>Closures &amp; the IIFE pattern</h4>
+    <pre><code>(<span class="kw">function</span> () {
+  <span class="str">'use strict'</span>;
+  <span class="kw">const</span> METRICS_PORT = 9200;
+  <span class="cm">// ...everything in this file's second half lives in here...</span>
+})();</code></pre>
+    <p>This shape — <code>(function () { ... })()</code> — is an <strong>Immediately-Invoked Function Expression (IIFE)</strong>: a function defined and called in the same breath. The reason to bother: every <code>const</code>/<code>let</code>/<code>function</code> declared inside only exists <em>inside that function</em> — it can't collide with a variable of the same name declared by Homepage's own code, or by the <em>other</em> IIFE in the same file (the quick-launch search palette). Both halves of <span class="fpath">custom.js</span> are wrapped this way specifically so they can't interfere with each other or with anything else on the page, even though they're loaded as one plain script with no module system.</p>
+
+    <h4><code>setInterval</code> — running something repeatedly</h4>
+    <pre><code>refresh();
+setInterval(refresh, POLL_MS);</code></pre>
+    <p><code>setInterval(fn, milliseconds)</code> calls <code>fn</code> once immediately isn't quite right — it actually calls it every <code>milliseconds</code>, starting <code>milliseconds</code> from now, forever (until the page is closed/reloaded). That's why <code>refresh()</code> is always called once <em>by itself</em> right before <code>setInterval(refresh, ...)</code> is set up — otherwise the panel would show nothing at all for the first 10 seconds after the page loads.</p>
+
+    <h4>Building SVG graphics from numbers</h4>
+    <p>An SVG (from 1.1) is just XML/HTML-like markup describing shapes. A line chart is one <code>&lt;polyline&gt;</code> whose <code>points</code> attribute is a list of <code>x,y</code> coordinates:</p>
+    <pre><code>`&lt;svg viewBox="0 0 220 46" class="sys-chart"&gt;&lt;polyline points="${coords}"/&gt;&lt;/svg&gt;`</code></pre>
+    <p>The actual work in <code>sparkline()</code> is arithmetic: take a list of raw values (e.g. CPU% samples), find their min/max, and rescale every value into the 0–46 pixel range available (this is called <strong>normalization</strong>) so the chart always fills its box regardless of whether CPU is hovering around 10% or spiking to 90%. The donut chart for storage works the same way in spirit but draws a circle's outline instead: an SVG <code>&lt;circle&gt;</code> can have its stroke drawn as a dashed pattern via <code>stroke-dasharray</code>, and by setting the dash length to exactly <code>percent% of the circle's circumference</code>, you get an arc that visually represents that percentage — with a second, full circle underneath in a muted color to show the "track" the arc sits on.</p>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 2 — YAML
+====================================================================== -->
+<section class="part" id="part2">
+  <h2>Part 2 — YAML &amp; Configuration</h2>
+  <p>Almost every file that <em>configures</em> something in this project — as opposed to files that <em>are</em> the running code — is YAML: <code>services.yaml</code>, <code>settings.yaml</code>, <code>widgets.yaml</code>, <code>docker.yaml</code>, <code>bookmarks.yaml</code>, and every <code>docker-compose.yaml</code>. It's worth genuinely mastering the syntax, because a single wrong space breaks the whole file.</p>
+
+  <section id="yaml-basics">
+    <h3>2.1 YAML syntax</h3>
+    <h4>Key-value pairs</h4>
+    <pre><code><span class="attr">title</span>: nmtaylor.org</code></pre>
+    <p>A colon <em>followed by a space</em> separates a key from its value. <code>title:nmtaylor.org</code> (no space) is <strong>not valid</strong> — this is the single most common way to break a YAML file by hand.</p>
+
+    <h4>Indentation is the entire structure</h4>
+    <p>YAML has no braces or brackets for nesting — <strong>indentation is the only thing that expresses "this is inside that."</strong> From <span class="fpath">appdata/widgets.yaml</span> (an earlier version, before it was emptied out):</p>
+    <pre><code>- <span class="attr">openmeteo</span>:
+    <span class="attr">label</span>: Home
+    <span class="attr">latitude</span>: <span class="str">"39.xxxx"</span>
+    <span class="attr">format</span>:
+      <span class="attr">maximumFractionDigits</span>: 0</code></pre>
+    <p><code>label</code> and <code>latitude</code> are indented under <code>openmeteo:</code>, meaning they are <code>openmeteo</code>'s own settings. <code>maximumFractionDigits</code> is indented one level further under <code>format:</code>, meaning it belongs to <code>format</code>, which itself belongs to <code>openmeteo</code>. Indentation must be done with <strong>spaces, never tabs</strong> (most YAML parsers reject tabs outright), and the exact number of spaces doesn't matter as long as it's <em>consistent</em> at each level — 2 spaces per level is the convention used throughout this project.</p>
+    <div class="callout gotcha"><span class="tag">Gotcha</span><p>Two sibling keys at the same logical level <strong>must</strong> start at the exact same column. If <code>latitude</code> were indented one space more or less than <code>label</code>, most parsers would either error outright or silently misinterpret the nesting — YAML has no redundancy to fall back on the way HTML's closing tags do.</p></div>
+
+    <h4>Lists</h4>
+    <pre><code><span class="attr">cap_drop</span>:
+  - ALL</code></pre>
+    <p>A leading <code>- </code> (dash, space) marks each item of a list. This is a list with one item, <code>ALL</code>. Lists can hold plain values (like this) or, as in the <code>openmeteo</code> example above, whole nested objects — <code>- openmeteo:</code> is "the first item of some list is an object with one key, <code>openmeteo</code>."</p>
+    <p>Compare the two styles used side-by-side in this project's compose files:</p>
+    <pre><code><span class="cm"># "block style" — one item per line, used everywhere in this project</span>
+<span class="attr">environment</span>:
+  - TZ=America/New_York
+  - GLANCES_OPT=-w
+
+<span class="cm"># "flow style" — same meaning, all on one line, rarely used here</span>
+<span class="attr">environment</span>: [TZ=America/New_York, GLANCES_OPT=-w]</code></pre>
+
+    <h4>Strings: quoted vs. unquoted</h4>
+    <p>Most plain text doesn't need quotes at all — <code>title: nmtaylor.org</code> just works. Quotes become necessary when the value could otherwise be misread as something else:</p>
+    <table>
+      <tr><th>Situation</th><th>Example</th></tr>
+      <tr><td>Value starts with a special character (<code>{</code>, <code>[</code>, <code>#</code>, <code>&amp;</code>, <code>*</code>...)</td><td><code>latitude: "{{HOMEPAGE_VAR_WEATHER_LATITUDE}}"</code></td></tr>
+      <tr><td>Value could be misread as a number or boolean</td><td><code>port: "8443"</code> (if you specifically need it treated as text, not a number)</td></tr>
+      <tr><td>Value contains a colon-space, which would otherwise look like a new key</td><td><code>label: "Home: upstairs"</code></td></tr>
+    </table>
+    <div class="callout gotcha"><span class="tag">Gotcha</span><p>Unquoted <code>yes</code>, <code>no</code>, <code>true</code>, <code>false</code>, <code>on</code>, <code>off</code> are all parsed as booleans by many YAML parsers, not as text — a classic trap if you ever wanted a literal string "no" as a value. Quote it if in doubt.</p></div>
+
+    <h4>Comments</h4>
+    <pre><code><span class="cm"># Everything after a hash mark, to the end of the line, is ignored.</span>
+<span class="attr">restart</span>: unless-stopped  <span class="cm"># can also trail after a real value</span></code></pre>
+    <p>This project uses comments constantly and deliberately — nearly every non-obvious decision in every YAML file here (a removed directive, a chosen port, a security tradeoff) is explained inline, right where the choice was made, specifically so a future reader (including you, later) doesn't have to guess why something is the way it is.</p>
+
+    <h4>Document markers</h4>
+    <pre><code>---
+<span class="cm"># https://gethomepage.dev/configs/info-widgets/</span>
+...</code></pre>
+    <p><code>---</code> at the very top of a file marks the start of a YAML "document" — mostly a formality for a single-document file like these, but required by convention in a lot of tooling (and by Homepage's own examples), so this project follows it consistently.</p>
+  </section>
+
+  <section id="compose-yaml">
+    <h3>2.2 Docker Compose YAML</h3>
+    <p>First, the concepts underneath the file. A <strong>container</strong> is a lightweight, isolated way to run one program with its own filesystem and process space, without needing a full separate virtual machine. An <strong>image</strong> is the packaged, read-only template a container is started from (like <code>nicolargo/glances:latest-full</code> — a pre-built snapshot of "Glances plus everything it needs to run," downloaded from a registry rather than installed by hand). Docker Compose is a tool for describing a group of related containers — and how they connect to each other — in one YAML file, so you can start/stop/recreate the whole group with one command instead of many.</p>
+
+    <h4>Anatomy of a service, using your Glances project</h4>
+    <pre><code><span class="attr">services</span>:
+  <span class="attr">glances</span>:
+    <span class="attr">image</span>: nicolargo/glances:latest-full
+    <span class="attr">container_name</span>: glances
+    <span class="attr">ports</span>:
+      - <span class="str">"127.0.0.1:61208:61208"</span>
+    <span class="attr">environment</span>:
+      - TZ=America/New_York
+      - GLANCES_OPT=-w
+    <span class="attr">volumes</span>:
+      - /volume1:/mnt/volume1:ro
+    <span class="attr">restart</span>: unless-stopped</code></pre>
+    <table>
+      <tr><th>Key</th><th>Meaning</th></tr>
+      <tr><td><code>services:</code></td><td>Top-level key — every container this file defines lives under here, one nested key per container.</td></tr>
+      <tr><td><code>image:</code></td><td>Which pre-built image to run this container from.</td></tr>
+      <tr><td><code>container_name:</code></td><td>A fixed name for this specific running container (otherwise Docker generates a random one) — needed anywhere another config file has to refer to this container by name (e.g. <code>docker.yaml</code>'s <code>my-docker</code> connection targeting a specific host/port instead).</td></tr>
+      <tr><td><code>ports:</code></td><td>Maps a port on the host machine (the NAS) to a port inside the container, as <code>host:container</code>. <code>"127.0.0.1:61208:61208"</code> means "only the NAS itself can reach this — not the LAN, not the internet" (see Part 3.4).</td></tr>
+      <tr><td><code>environment:</code></td><td>Environment variables — named text values the program inside the container can read at startup, commonly used for settings and secrets instead of hardcoding them into the image.</td></tr>
+      <tr><td><code>volumes:</code></td><td>Bind-mounts a path from the host filesystem into the container, as <code>host_path:container_path[:mode]</code>. <code>/volume1:/mnt/volume1:ro</code> makes the NAS's real storage pool visible inside the container at <code>/mnt/volume1</code>, <strong>read-only</strong> (<code>ro</code>) — the container can look at it but never modify or delete anything there.</td></tr>
+      <tr><td><code>restart:</code></td><td>What to do if the container stops. <code>unless-stopped</code> means "always restart it automatically (e.g. after a NAS reboot), unless a human explicitly stopped it on purpose."</td></tr>
+    </table>
+
+    <h4><code>environment</code> vs. <code>env_file</code></h4>
+    <pre><code><span class="attr">environment</span>:
+  - METRICS_BIND=0.0.0.0        <span class="cm"># fine as plain text — not a secret</span>
+<span class="attr">env_file</span>:
+  - .env                        <span class="cm"># WEATHER_LATITUDE/LONGITUDE live here instead</span></code></pre>
+    <p><code>environment:</code> writes values directly into the compose file itself. <code>env_file:</code> instead points at a separate file (conventionally named <code>.env</code>) full of <code>KEY=value</code> lines, and Docker Compose merges those in as if they'd been written under <code>environment:</code> directly. The entire reason this project keeps a separate <code>.env</code> per project (with a matching <code>.env.example</code>/<code>.env.template</code> containing only placeholders) is so real secrets and personal details (API keys, home coordinates) never have to sit in a file that gets freely copied, read, or shared — see the callout below.</p>
+    <div class="callout why"><span class="tag">Why it matters</span><p>This is also why <span class="fpath">compose/glances/.env.template</span> exists with placeholder values like <code>WEATHER_LATITUDE=changeme</code>: it's safe to keep in version control / share / hand to an AI assistant, while the real <code>.env</code> (with your actual coordinates) only ever exists directly on the NAS, filled in by you.</p></div>
+
+    <h4><code>network_mode: host</code> vs. the default (bridge) networking</h4>
+    <p>By default, every container gets its own private virtual network interface with its own IP address, and only the ports you explicitly publish (via <code>ports:</code>) are reachable from outside — this is <strong>bridge</strong> networking, Docker's default. <code>network_mode: host</code> instead gives the container direct access to the host machine's actual network — no translation layer, no need to publish ports individually, but also no isolation at all.</p>
+    <div class="callout why"><span class="tag">Why it matters</span><p>This project uses <code>network_mode: host</code> for most things (Homepage, WUD, <code>system-metrics-collector</code>) purely for simplicity/compatibility with this homelab's existing convention — but deliberately does <strong>not</strong> use it for <code>docker-socket-proxy</code> or <code>glances</code>, specifically because those two have real security surface worth isolating (one holds a path to the Docker API; the other's own web UI shows detailed process data) — for those, plain bridge networking plus a single explicit <code>127.0.0.1:PORT:PORT</code> port mapping keeps them reachable only from the NAS itself, never the LAN.</p></div>
+
+    <h4>Users, PUID/PGID, and hardening flags</h4>
+    <pre><code><span class="attr">user</span>: <span class="str">"1000:10"</span>
+<span class="attr">read_only</span>: <span class="kw">true</span>
+<span class="attr">security_opt</span>:
+  - no-new-privileges:true
+<span class="attr">cap_drop</span>:
+  - ALL</code></pre>
+    <table>
+      <tr><th>Setting</th><th>Meaning</th></tr>
+      <tr><td><code>user: "1000:10"</code> (or <code>PUID=1000</code>/<code>PGID=10</code> env vars, same idea)</td><td>Runs the process inside the container as a specific unprivileged user/group ID instead of <code>root</code> — matters because files it creates on a bind-mounted volume will be owned by that id on the <em>host</em> too, and matching your NAS's normal user avoids permission headaches.</td></tr>
+      <tr><td><code>read_only: true</code></td><td>The container's own filesystem can't be written to at all — nothing inside it can be modified or dropped as malware persistence, short of the explicitly-mounted volumes.</td></tr>
+      <tr><td><code>security_opt: [no-new-privileges:true]</code></td><td>Blocks a whole class of privilege-escalation tricks (like a setuid binary trying to gain root) even if something inside the container tries.</td></tr>
+      <tr><td><code>cap_drop: [ALL]</code></td><td>Linux divides "root's powers" into dozens of individual capabilities (binding low ports, changing file ownership, etc.). This strips <em>every</em> one of them from the container, leaving it with the bare minimum a normal program needs.</td></tr>
+    </table>
+    <div class="callout real"><span class="tag">In this project</span><p>These four only get applied to the small Python scripts <em>this project itself wrote</em> (<code>stacks_collector.py</code>, <code>system_metrics_collector.py</code>) — never to third-party images like WUD or Glances, which have real runtime needs (writing temp files, etc.) that hardening this aggressively would break. Applying it inconsistently once (briefly hardening Glances the same way its own collector script is) was an actual mistake caught mid-project — see Part 7.1.</p></div>
+
+    <h4><code>depends_on</code></h4>
+    <pre><code><span class="attr">system-metrics-collector</span>:
+  <span class="cm"># ...</span>
+  <span class="attr">depends_on</span>:
+    - glances</code></pre>
+    <p>Tells Docker Compose "start <code>glances</code> before starting this one." It only controls <em>start order</em>, not "wait until glances is actually ready to receive requests" — which is why <span class="fpath">system_metrics_collector.py</span> still has to handle Glances being briefly unreachable on its own (via its <code>try/except</code>, see Part 5).</p>
+  </section>
+
+  <section id="homepage-yaml">
+    <h3>2.3 Homepage's own YAML files</h3>
+    <p>These live in <span class="fpath">appdata/</span> and are Homepage-specific — a different vocabulary of keys than Docker Compose, but the exact same YAML syntax rules from 2.1.</p>
+    <table>
+      <tr><th>File</th><th>Controls</th></tr>
+      <tr><td><code>services.yaml</code></td><td>Every group and card on the dashboard — names, icons, links, and each card's <code>widget:</code> block (which API to call for live status/stats) or <code>container:</code>/<code>server:</code> pair (for a docker status dot).</td></tr>
+      <tr><td><code>settings.yaml</code></td><td>Page-level behavior — the tabs (<code>Home</code>/<code>Media</code>), which group goes on which tab, and each group's <code>layout:</code> (this is the setting that routes a group into <code>#layout-groups</code> instead of <code>#services</code> — see Part 4.2).</td></tr>
+      <tr><td><code>widgets.yaml</code></td><td>"Info-widgets" — small standalone widgets (a clock, a weather readout, a resource-usage strip) that used to sit in their own row above the tabs. Currently empty in this project, since those responsibilities moved into the hand-built System panel.</td></tr>
+      <tr><td><code>bookmarks.yaml</code></td><td>A bookmarks group. Deliberately left as an empty file here, specifically to override Homepage's own auto-generated demo bookmarks that otherwise appear on first boot when this file is missing entirely.</td></tr>
+      <tr><td><code>docker.yaml</code></td><td>Declares how Homepage should reach a Docker API — in this project, one entry named <code>my-docker</code> pointing at <code>docker-socket-proxy</code>'s address rather than the raw socket.</td></tr>
+    </table>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>Every service card showed a red "ERROR" status dot early on, even with a valid <code>container:</code> name set. The missing piece: a <code>container:</code> entry alone does nothing by itself — Homepage also needs to know <em>which Docker host</em> to check, which means every card also needs a matching <code>server: my-docker</code> line (referencing the name declared in <code>docker.yaml</code>), and <code>docker.yaml</code> has to actually exist. Neither existed at first. This is a good general lesson about config-driven apps: a feature can be "half-configured" and fail silently (or with an unhelpfully generic error) rather than telling you which piece is missing.</p></div>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 3 — NETWORKING
+====================================================================== -->
+<section class="part" id="part3">
+  <h2>Part 3 — Networking &amp; HTTP</h2>
+
+  <section id="net-basics">
+    <h3>3.1 Clients, servers, ports, and addresses</h3>
+    <p>A <strong>server</strong> is just a program that sits and listens for incoming connections and responds to them. A <strong>client</strong> is a program that opens a connection <em>to</em> a server and asks it for something — your browser is a client; Homepage's container is a server (and, for some of its widgets, briefly a client too, when it fetches from Jellyfin/Home Assistant/etc. on your behalf).</p>
+    <p>Every server needs an <strong>address</strong> (which machine) and a <strong>port</strong> (which program on that machine — a single machine can run many servers at once, each listening on a different numbered "door," 0–65535). This project's addresses, in increasing order of how far they reach:</p>
+    <table>
+      <tr><th>Address</th><th>Reaches</th></tr>
+      <tr><td><code>127.0.0.1</code> ("localhost")</td><td>Only the exact same machine making the request. A browser on your phone can never reach <code>127.0.0.1:9200</code> and mean the NAS — it always means "my own phone."</td></tr>
+      <tr><td><code>192.168.1.16</code></td><td>Any device on the same local network (LAN) — your home Wi-Fi/ethernet, not the internet.</td></tr>
+      <tr><td><code>dash.nmtaylor.org</code></td><td>Anyone, anywhere on the internet who knows the domain — resolved to a real IP via DNS (3.2), then routed in from outside your home network.</td></tr>
+    </table>
+    <div class="callout why"><span class="tag">Why it matters</span><p>This hierarchy is exactly why <code>docker-socket-proxy</code> and <code>glances</code> bind their ports to <code>127.0.0.1:PORT</code> specifically — it's a deliberate statement that "only the NAS itself may ever connect to this," which rules out the entire LAN and internet at once, regardless of any firewall rule. It's also why the System panel's metrics collector binds to <code>0.0.0.0</code> (meaning "listen on every network interface, so anyone who can reach this machine at all can connect") instead — because unlike the other two, your own <em>browser</em> (on your phone, laptop, etc.) needs to reach it directly across the LAN, not just the NAS talking to itself.</p></div>
+  </section>
+
+  <section id="dns-proxy">
+    <h3>3.2 DNS, reverse proxies, and TLS</h3>
+    <p><strong>DNS</strong> (Domain Name System) is the internet's phone book — it turns a name like <code>nmtaylor.org</code> into an actual IP address. Cloudflare DDNS (Dynamic DNS) in this project's Infrastructure group exists because most home internet connections don't have a fixed IP — it periodically checks your home's current public IP and updates Cloudflare's DNS record to match, so the domain keeps pointing at the right place even after your ISP changes it.</p>
+    <p>A <strong>reverse proxy</strong> (Caddy, here) sits in front of your actual services and routes incoming requests to the right one based on the domain name requested — <code>dash.nmtaylor.org</code> gets routed to Homepage's container, while a different subdomain gets routed elsewhere, all while only one thing (Caddy) is actually exposed to the internet. Caddy also does <strong>TLS termination</strong>: it's the thing that holds the actual HTTPS certificate and encrypts/decrypts traffic, so the containers behind it can speak plain unencrypted HTTP to each other on the trusted local side.</p>
+    <p><strong>Basic auth</strong> is the simplest possible password-protection: the browser pops up a native username/password prompt before it'll let you through at all, enforced by Caddy before a request ever reaches Homepage. Homepage has no login system of its own, so this is the only thing stopping a stranger who discovers <code>dash.nmtaylor.org</code> from seeing your dashboard.</p>
+  </section>
+
+  <section id="cors">
+    <h3>3.3 The same-origin policy &amp; CORS</h3>
+    <p>An <strong>origin</strong> is the combination of protocol + domain/IP + port — <code>http://192.168.1.16:3000</code> and <code>http://192.168.1.16:9200</code> are <strong>different origins</strong>, purely because the port differs, even though it's the exact same machine. Browsers enforce a rule called the <strong>same-origin policy</strong>: JavaScript running on a page from one origin is not allowed to read the response of a request to a different origin, unless that other origin explicitly opts in.</p>
+    <p>That opt-in mechanism is <strong>CORS</strong> (Cross-Origin Resource Sharing): the server being requested adds a response header, <code>Access-Control-Allow-Origin</code>, saying who's allowed to read its responses.</p>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>The System panel worked perfectly when tested with <code>curl</code> from the NAS's own terminal, but showed nothing in the actual browser. The reason: <code>curl</code> is not a browser and doesn't enforce CORS at all — it happily reads any response. The dashboard page (port 3000) and the metrics collector (port 9200) are different origins to a <em>browser</em>, though, so <code>fetch()</code> inside <span class="fpath">custom.js</span> was being silently blocked by the browser itself, even though the request reached the collector and got a perfectly good response. The fix was one line on the server side: <code>self.send_header("Access-Control-Allow-Origin", "*")</code> in <span class="fpath">system_metrics_collector.py</span>. The lesson generalizes well beyond this project: whenever something works from a command line but not from a page in an actual browser, CORS is one of the first things to suspect — check the browser's DevTools Console (as you did) for a red "blocked by CORS policy" message, which says so explicitly.</p></div>
+    <p><code>Access-Control-Allow-Origin: *</code> (a wildcard) means "anyone may read this." That's a reasonable choice here specifically because the data is read-only, non-secret, and already only reachable on your own LAN in the first place — a wildcard would be a much bigger deal on something that returns private data or accepts write requests.</p>
+  </section>
+
+  <section id="docker-net">
+    <h3>3.4 Docker networking, and why <code>docker-socket-proxy</code> exists</h3>
+    <p>The <strong>Docker socket</strong> (<code>/var/run/docker.sock</code>) is the actual control interface for Docker itself — anything that can talk to it can inspect, start, stop, or delete <em>any</em> container on the machine, and (because containers can mount arbitrary host paths) that's effectively equivalent to root access to the whole NAS. Homepage's container-status dots and WUD's update-checking both need <em>some</em> access to it, just to ask "what containers exist and what images are they running" — a much smaller ask than full control.</p>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>The first attempt to grant that narrow access was <code>group_add: ["121"]</code> — adding Homepage's container to the host's <code>docker</code> group (GID 121), the normal Linux way to grant access to a specific device file without full root. It didn't work; status dots stayed red. Tracing into Homepage's own startup script found <code>exec su-exec ${PUID}:${PGID} "$@"</code> — <code>su-exec</code> switches to the unprivileged user <em>and drops every supplementary group in the process</em>, wiping out the very group membership <code>group_add</code> had just granted. The real fix was architectural, not a permissions tweak: <code>docker-socket-proxy</code> is a small dedicated container that <em>does</em> hold the real socket, but exposes only a deliberately narrow HTTP API over it (<code>POST=0</code> — no ability to create/modify anything; <code>CONTAINERS=1, INFO=1, IMAGES=1, EVENTS=1</code> — read-only visibility only) on <code>127.0.0.1:2375</code>. Homepage and WUD talk to <em>that</em> instead of the real socket, and never need any socket permissions of their own at all. This is a real instance of a broader security principle called <strong>defense in depth</strong> / <strong>least privilege</strong>: instead of granting a big capability and hoping nothing misuses it, build the smallest possible interface that does exactly the one thing you need, and grant access to <em>that</em> instead.</p></div>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 4 — HOMEPAGE INTERNALS
+====================================================================== -->
+<section class="part" id="part4">
+  <h2>Part 4 — How Homepage Itself Works</h2>
+  <p>Homepage is built with <strong>React</strong> (a JavaScript library for building user interfaces) and <strong>Next.js</strong> (a framework built on top of React that handles routing, server rendering, and project structure). You don't need to become a React developer to maintain this dashboard — but the next two ideas explain <em>why</em> a couple of real bugs in this project happened, and why <span class="fpath">custom.js</span> is written the deliberate, careful way it is.</p>
+
+  <section id="react-basics">
+    <h3>4.1 What React is actually doing</h3>
+    <p>In plain HTML, the page is whatever you wrote, forever, until JavaScript explicitly changes it. React inverts this: you describe what the page <em>should</em> look like as a function of the current data ("if <code>cpu_percent</code> is 63, show '63%' here"), and React itself is responsible for figuring out what actually needs to change in the real DOM whenever that data changes — recalculating and re-rendering automatically rather than you writing manual "find this element, update its text" code for every single piece of data on the page. That's what all of Homepage's own live-updating widgets are doing under the hood; it's the same idea your hand-written <code>refresh()</code> function does manually and explicitly for the System panel, just automated at a much larger scale.</p>
+  </section>
+
+  <section id="reconciliation">
+    <h3>4.2 The Virtual DOM &amp; reconciliation — why insertion point matters</h3>
+    <p>To figure out what changed, React keeps its own private copy of "what the page should look like" (a lightweight in-memory tree, often called the <strong>Virtual DOM</strong>) and compares the new version against the previous one every time data changes. This comparison step is called <strong>reconciliation</strong>. When it finds a difference, it makes the smallest possible edit to the <em>real</em> DOM to match — it doesn't ever throw away and rebuild the whole page.</p>
+    <p>The catch: React only knows about elements <em>it</em> created. If you use plain JavaScript to shove a new element into the middle of a part of the page that React manages, React has no idea that element exists — and the next time React re-renders that exact area (because some state changed), it rebuilds that area from its own Virtual DOM, with no memory of your extra element ever being there. Depending on exactly where you inserted it, this can silently delete it, duplicate it, or in some cases throw an outright error.</p>
+    <div class="callout why"><span class="tag">Why it matters</span><p>This is the single biggest reason <span class="fpath">custom.js</span>'s System panel doesn't just get dropped in "wherever" — its insertion point was chosen specifically to sit <em>outside</em> any part of the tree React actually rebuilds when you switch tabs. Confirmed by reading Homepage's real source rather than guessing: clicking "Home"/"Media" only tears down and rebuilds a container called <code>#layout-groups</code>, deep inside a component called <code>Home</code>. Everything above that in the tree — including a wrapper div called <code>#inner_wrapper</code> — stays untouched across a tab switch. So inserting the panel as <code>#inner_wrapper</code>'s first child is safe: React never reconciles that specific spot, so your manually-inserted element just... stays there, indefinitely, completely ignored by React and therefore never fought over.</p></div>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>An earlier version of the panel was inserted as <code>document.body</code>'s first child instead of <code>#inner_wrapper</code>'s. That's <em>also</em> safe from reconciliation, for the same reason — but it turned out to be the wrong <em>parent</em> for an unrelated reason: Homepage's actual page-scrolling happens inside <code>#inner_wrapper</code> specifically (it has <code>overflow-auto</code> set in CSS), while <code>html</code>/<code>body</code>/<code>#__next</code> are all just fixed at <code>height: 100%</code> with no scrolling of their own. A panel sitting as a sibling of <code>#inner_wrapper</code>, rather than inside it, sits outside that scrolling viewport entirely — so it stayed visually pinned at the top of the screen no matter how far down the page you scrolled. The fix and the original safety reasoning didn't conflict: moving one level deeper, to <code>#inner_wrapper</code>'s first child, kept the exact same "outside anything React rebuilds" property while finally also being inside the actual scrolling area. The lesson: "is this DOM node safe from React" and "is this DOM node in the right visual position" are two separate questions, and you have to check Homepage's real source for both rather than assuming either.</p></div>
+  </section>
+
+  <section id="custom-loading">
+    <h3>4.3 How <code>custom.css</code>/<code>custom.js</code> actually get loaded</h3>
+    <p>Homepage serves your two files back out through its own API at <code>/api/config/custom.css</code> and <code>/api/config/custom.js</code> (reading them off disk from wherever <code>settings.yaml</code> lives). <code>custom.css</code> is linked from inside Next's <code>&lt;Head&gt;</code> (a component that always places its children into the page's real <code>&lt;head&gt;</code>, regardless of where in the component tree it's written) — so a <code>&lt;link rel="stylesheet"&gt;</code> tag for it legitimately sits inside <code>&lt;head&gt;</code>. <code>custom.js</code> is loaded the same way, via <code>&lt;Script src="/api/config/custom.js" /&gt;</code>, also inside a <code>&lt;Head&gt;</code> block on the actual page component. Neither of those facts says anything about where the <em>content</em> those files produce ends up — the stylesheet's rules apply wherever their selectors match (anywhere on the page), and the JavaScript's own code decides exactly where to insert its DOM (as covered in 4.2) — the loading location and the effect's location are two entirely separate things.</p>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 5 — PYTHON
+====================================================================== -->
+<section class="part" id="part5">
+  <h2>Part 5 — Just Enough Python</h2>
+  <p>Two small backend programs in this project are written in Python: <span class="fpath">appdata/wud/collector/stacks_collector.py</span> and <span class="fpath">appdata/glances/collector/system_metrics_collector.py</span>. Neither needs any external libraries beyond what Python ships with (its "standard library") — a deliberate choice to keep them simple to deploy (nothing to install, just run the file).</p>
+
+  <section id="py-basics">
+    <h3>5.1 Variables, dicts, and functions</h3>
+    <pre><code>GLANCES_URL = os.environ.get(<span class="str">"GLANCES_URL"</span>, <span class="str">"http://127.0.0.1:61208"</span>).rstrip(<span class="str">"/"</span>)</code></pre>
+    <p><code>os.environ.get("NAME", "default")</code> reads an environment variable (the same ones set in the compose file's <code>environment:</code>/<code>env_file:</code>) — Python's equivalent to JavaScript's <code>fmt(value, suffix = '')</code> default-parameter idea, just spelled differently. <code>.rstrip("/")</code> removes any trailing slash, so the rest of the code can safely glue on its own <code>"/system"</code> without ending up with an accidental double slash.</p>
+    <pre><code><span class="kw">def</span> <span class="fn">pick_cpu_temp</span>(sensors):
+    <span class="kw">for</span> sensor <span class="kw">in</span> sensors <span class="kw">or</span> []:
+        <span class="kw">if</span> isinstance(sensor, dict) <span class="kw">and</span> sensor.get(<span class="str">"type"</span>) == <span class="str">"temperature_core"</span>:
+            value = sensor.get(<span class="str">"value"</span>)
+            <span class="kw">if</span> isinstance(value, (<span class="fn">int</span>, <span class="fn">float</span>)):
+                <span class="kw">return float</span>(value)
+    <span class="kw">return None</span></code></pre>
+    <p>Python uses <strong>indentation itself</strong> to mark code blocks (no braces at all — even stricter than YAML about it). <code>dict</code> is Python's name for what JavaScript calls an object — key/value pairs, read with <code>.get("key")</code> (returns <code>None</code>, Python's version of <code>undefined</code>/<code>null</code>, if the key is missing, rather than crashing). <code>isinstance(x, dict)</code> checks the type of a value before trusting its shape — necessary here because this data ultimately came from across the network (Glances' API), and defensively assuming it might not look exactly as expected is good practice for any external input.</p>
+    <p>The full function reads: "go through every sensor reading; the first one whose <code>type</code> is specifically <code>temperature_core</code> (confirmed, by reading Glances' own source, to be the CPU-package sensor) — if its <code>value</code> is a real number, return it immediately. If nothing matched by the end, return <code>None</code>." <code>or []</code> guards against <code>sensors</code> itself being <code>None</code> (e.g. if the API call failed) — looping over <code>None</code> directly would crash, looping over an empty list just does nothing, silently.</p>
+  </section>
+
+  <section id="py-threading">
+    <h3>5.2 Threads and locks — why the collector scripts need both</h3>
+    <p>Both collector scripts need to do two things "at once": continuously poll their upstream API in the background (Glances, or WUD) <em>and</em> answer incoming HTTP requests from your browser/dashboard immediately, without either one blocking the other. Python's <code>Thread</code> is how you run a second, independent stream of execution alongside the main one:</p>
+    <pre><code>Thread(target=poll, daemon=<span class="kw">True</span>).start()
+ThreadingHTTPServer((bind, port), Handler).serve_forever()</code></pre>
+    <p>One thread runs <code>poll()</code> forever in the background (sleeping 10 seconds between each check); the main thread runs the actual web server, answering requests instantly with whatever the background thread most recently found — never making a visitor wait on a live Glances API call.</p>
+    <p>The danger with two threads is that they might both try to read <em>and</em> write the same shared variable (<code>state</code>) at the exact same instant, potentially catching it half-updated. A <code>Lock</code> prevents that:</p>
+    <pre><code><span class="kw">with</span> lock:
+    state = { ... }</code></pre>
+    <p><code>with lock: ...</code> means "only one thread may be inside this block at a time — if another thread is already in here, wait your turn." Every place either thread reads or writes <code>state</code> is wrapped this way, guaranteeing the HTTP handler always sees either the fully-old or fully-new version of the data, never something in between.</p>
+  </section>
+
+  <section id="py-tour">
+    <h3>5.3 Guided tour: <span class="fpath">system_metrics_collector.py</span></h3>
+    <ol>
+      <li><strong>Read config from the environment</strong> — <code>GLANCES_URL</code>, poll intervals, history buffer size, weather coordinates. All overridable, all with sane defaults, so the compose file only has to set what actually differs from the default.</li>
+      <li><strong><code>poll()</code></strong> — runs forever in a background thread. Each loop: call four Glances endpoints (<code>/api/4/cpu</code>, <code>/mem</code>, <code>/fs</code>, <code>/sensors</code>), pull out just the fields this project cares about, append the new CPU/temp reading onto a short rolling history list (trimmed to the last 12 samples — a 2-minute window at a 10-second poll rate), and store the whole snapshot in <code>state</code> under the lock. If anything throws (Glances unreachable, bad JSON, etc.), the <code>except</code> block marks <code>available: False</code> instead of crashing the whole thread — the loop always keeps running and keeps retrying every cycle.</li>
+      <li><strong><code>poll_weather()</code></strong> — the same shape, running as its own independent thread on its own, much slower interval (15 minutes, matching how often weather realistically changes), calling Open-Meteo's public API directly with coordinates that never leave this container.</li>
+      <li><strong><code>Handler</code></strong> — the actual HTTP server logic. Whichever path was requested (<code>/system</code>, <code>/system/history</code>, or <code>/weather</code>) determines which slice of the already-collected <code>state</code>/<code>weather_state</code> gets sent back as JSON. It never talks to Glances or Open-Meteo itself — it only ever reads what the background threads already gathered.</li>
+    </ol>
+    <div class="callout why"><span class="tag">Why it matters</span><p>Notice the collector deliberately does <em>not</em> use Glances' own built-in <code>/history</code> endpoint. That was a real finding from reading Glances' actual plugin source code, not an assumption: Glances' history only tracks CPU's user/system sub-components, never the "total" percentage shown everywhere else, and its sensors plugin has no history support at all. Rather than accept that gap, this project keeps its own small ring buffer instead — a general pattern worth remembering: when someone else's API almost does what you need, check whether "almost" is actually good enough before building around its shape.</p></div>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 6 — ARCHITECTURE
+====================================================================== -->
+<section class="part" id="part6">
+  <h2>Part 6 — This Project, End to End</h2>
+
+  <section id="architecture">
+    <h3>6.1 The full architecture</h3>
+    <p>Every moving piece, grouped by what it's for:</p>
+    <table>
+      <tr><th>Piece</th><th>What it is</th><th>Talks to</th></tr>
+      <tr><td>Homepage</td><td>The dashboard app itself (container)</td><td>docker-socket-proxy (status dots); Jellyfin/Home Assistant/etc. directly (their own widgets); serves <code>custom.css</code>/<code>custom.js</code> to your browser</td></tr>
+      <tr><td>docker-socket-proxy</td><td>Narrow, read-only HTTP wrapper around the real Docker socket</td><td>The real <code>/var/run/docker.sock</code> (read-only view); Homepage and WUD connect <em>to</em> it</td></tr>
+      <tr><td>What's Up Docker (WUD)</td><td>Checks every container's image against its registry for available updates</td><td>docker-socket-proxy (to enumerate containers/images)</td></tr>
+      <tr><td><code>stacks_collector.py</code></td><td>Groups WUD's per-container data by Compose project, serves it simplified</td><td>WUD's own REST API</td></tr>
+      <tr><td>Glances</td><td>System-monitoring agent (CPU/mem/disk/sensors)</td><td>Reads the NAS's own <code>/proc</code>, <code>/sys</code>, and the bind-mounted <code>/mnt/volume1</code></td></tr>
+      <tr><td><code>system_metrics_collector.py</code></td><td>Polls Glances, keeps a short history buffer, proxies weather</td><td>Glances' REST API; Open-Meteo's public API</td></tr>
+      <tr><td><code>custom.js</code> (in your browser)</td><td>Renders the System panel, fetches its data live</td><td><code>system_metrics_collector.py</code>, directly from your browser over the LAN</td></tr>
+      <tr><td>Caddy</td><td>Reverse proxy + TLS + basic auth</td><td>Everything with a public subdomain, including Homepage</td></tr>
+      <tr><td>Cloudflare DDNS / Tunnel</td><td>Keeps DNS pointed at your home IP; tunnels Vaultwarden without opening a port</td><td>Cloudflare's own infrastructure</td></tr>
+    </table>
+  </section>
+
+  <section id="dataflow">
+    <h3>6.2 Data-flow walkthroughs</h3>
+    <h4>Loading the dashboard for the first time</h4>
+    <ol>
+      <li>Your browser requests <code>dash.nmtaylor.org</code> (or <code>192.168.1.16:3000</code> directly on the LAN).</li>
+      <li>(Remote access only) Cloudflare DNS resolves the domain, Caddy receives the request, checks basic auth, and forwards it to Homepage's container.</li>
+      <li>Homepage's Next.js server renders the initial page — reading <code>services.yaml</code>/<code>settings.yaml</code>/<code>widgets.yaml</code> to know what to draw — and sends back HTML plus links to its CSS/JS, including <code>custom.css</code> and <code>custom.js</code>.</li>
+      <li>Your browser parses that HTML, requests <code>custom.css</code> and <code>custom.js</code>, and starts running React (this is "hydration" — attaching interactivity to already-rendered HTML).</li>
+      <li><code>custom.js</code> runs, builds the System panel's HTML by hand, and inserts it into <code>#inner_wrapper</code>.</li>
+      <li>Homepage's own widgets (Jellyfin, Home Assistant, Uptime Kuma, etc.) each independently fetch their own live data from those services' APIs.</li>
+      <li><code>custom.js</code> makes its first calls to <code>system_metrics_collector.py</code> for <code>/system</code>, <code>/system/history</code>, and <code>/weather</code>, and starts its own repeating timers.</li>
+    </ol>
+    <h4>The CPU graph updating every 10 seconds</h4>
+    <ol>
+      <li>In the background, on the NAS, <code>system_metrics_collector.py</code>'s <code>poll()</code> thread wakes up, calls Glances, appends the new sample to its history list, sleeps again.</li>
+      <li>Independently, in your browser, <code>custom.js</code>'s <code>setInterval(refresh, POLL_MS)</code> fires, calls <code>fetch()</code> against <code>/system</code> and <code>/system/history</code>.</li>
+      <li>The collector's HTTP handler answers instantly with whatever it currently has in memory — it never talks to Glances synchronously in response to your request.</li>
+      <li><code>custom.js</code> rebuilds the sparkline SVG from the returned numbers and swaps it into the page via <code>innerHTML</code>.</li>
+    </ol>
+    <p>These two loops (the 10-second server-side poll, and the 10-second browser-side fetch) are independent and not perfectly synchronized — which is fine, because the server-side one is always slightly ahead, so the browser is always reading data that's already there rather than waiting on it.</p>
+    <h4>Checking whether a container has an update available</h4>
+    <ol>
+      <li>WUD, on its own schedule, asks docker-socket-proxy for the full list of running containers and their current images, then checks each image's tag against its registry.</li>
+      <li><code>stacks_collector.py</code> polls WUD's own <code>/api/containers</code> endpoint, groups the results by each container's Compose project name (the <code>stack</code> field), and serves a small JSON summary per project.</li>
+      <li>Each Docker Stacks card in <code>services.yaml</code> is a <code>customapi</code> widget pointed at one specific project's URL on the collector — Homepage's server fetches that URL itself and renders the numbers into the card.</li>
+    </ol>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 7 — CASE STUDIES
+====================================================================== -->
+<section class="part" id="part7">
+  <h2>Part 7 — Debugging Case Studies</h2>
+  <p>These are the same four incidents referenced earlier, collected here specifically as <em>methodology</em> — the transferable habits, not just "what the bug was."</p>
+
+  <section id="case-compose">
+    <h3>7.1 The three-round "Invalid configuration file" saga</h3>
+    <p>Deploying the Glances project through UGOS's Docker Compose GUI failed with a generic "Invalid configuration file" error — no line number, no key name, nothing. Three directives looked suspicious at once: <code>pid: host</code>, <code>read_only: true</code> + <code>tmpfs:</code>, and a volume mount of the bare host root (<code>/:/rootfs:ro</code>).</p>
+    <p>The approach: remove one suspicious directive, redeploy, see if the error changes. <code>pid: host</code> went first (it was untested anywhere else in the project) — same error. The hardening flags went second (also untested on a third-party image elsewhere) — same error. The bare-root volume mount went third — <strong>that</strong> cleared it.</p>
+    <div class="callout debug"><span class="tag">Debugging story</span><p>The bare-root mount had actually been flagged as the <em>most</em> suspicious of the three from the very first message — every other volume mount anywhere else in this whole project targets a specific <code>/volume1/...</code> path, never the bare host root, so it stood out immediately as "the one thing that doesn't match this project's own established pattern." It still ended up tested <em>last</em>, purely because it felt like a bigger, more disruptive change to try first than the other two. That ordering cost two entire redeploy-and-wait cycles for nothing. The actual lesson: when several things are all equally untested, rank them by genuine suspicion (does this match what's already proven to work elsewhere?) and test the strongest suspect first — not whichever change is easiest to justify making, and not in the order you happened to think of them.</p></div>
+    <p>The general playbook this leaves you with for "no useful error message" situations: diff the failing config against something <em>already known to work</em>, list every genuinely new element, and test them in order of actual suspicion — one at a time, so you always know exactly which change fixed (or didn't fix) it.</p>
+  </section>
+
+  <section id="case-cors">
+    <h3>7.2 The CORS bug</h3>
+    <p>Covered in full in Part 3.3. The methodology point worth repeating here: <code>curl</code> succeeding is evidence the <em>server</em> works — it is not evidence the feature works, because a browser enforces rules curl doesn't. Whenever "it works from the command line but not in the actual page," check the browser's own DevTools Console before anything else; it will usually name the exact problem (as it did here, verbatim: "blocked by CORS policy").</p>
+  </section>
+
+  <section id="case-scroll">
+    <h3>7.3 The scroll-container bug</h3>
+    <p>Covered in full in Part 4.2. The methodology point: this bug was <em>reported by observation</em> ("the bar doesn't move when I scroll") rather than by an error message — there was nothing to catch in a console. The fix came from reading Homepage's actual page-layout source code to find the real scrolling element (<code>#inner_wrapper</code>), rather than guessing at CSS tweaks that might have masked the symptom without addressing the actual cause. When the browser's own behavior seems to disagree with how you assumed the page was built, that assumption — not the browser — is usually what's wrong, and the fix is to go read the real structure rather than trial-and-error CSS.</p>
+  </section>
+
+  <section id="case-socket">
+    <h3>7.4 The docker-socket permission saga</h3>
+    <p>Covered in full in Part 3.4. The methodology point: the first fix (<code>group_add</code>) was reasonable and by-the-book — it's the textbook way to grant device access on Linux — and it still failed, because a layer <em>underneath</em> it (Homepage's own entrypoint script switching users) undid it. The fix required reading that entrypoint script directly rather than continuing to iterate on permission flags that all sat on the same side of the actual problem. Sometimes the correct fix isn't a variation on what you already tried — it's realizing the thing you're adjusting isn't the thing actually causing the behavior.</p>
+  </section>
+</section>
+
+<!-- ======================================================================
+     PART 8 — DOING IT YOURSELF
+====================================================================== -->
+<section class="part" id="part8">
+  <h2>Part 8 — Debugging It Yourself Next Time</h2>
+
+  <section id="checklist">
+    <h3>8.1 A general troubleshooting checklist</h3>
+    <ol class="checklist">
+      <li><strong>Read the actual error message character by character</strong> before doing anything else — but also notice when it's <em>not telling you anything</em> (like UGOS's generic rejection), because that changes your strategy from "fix what it says" to "diff against something known-good."</li>
+      <li><strong>Reproduce the smallest version of the problem.</strong> A raw <code>curl</code> request bypasses the browser entirely — useful for isolating "is the server broken" from "is something about being in a browser breaking this" (exactly how the CORS bug was distinguished from a real server bug).</li>
+      <li><strong>Check the browser's own DevTools</strong> (Console tab for JS errors, Network tab for failed/blocked requests) before guessing at frontend bugs — the browser usually already knows exactly what went wrong and will say so.</li>
+      <li><strong>When a config file is silently ignored or rejected, diff it against a config that's already known to work</strong> in the same environment, and change one thing at a time.</li>
+      <li><strong>When your own mental model of how something works disagrees with its actual behavior, go find the real source</strong> (this project's own GitHub, Glances' plugin source, etc.) rather than iterating on guesses — every fix in Part 7 ultimately came from reading real source code, not from trial and error.</li>
+      <li><strong>Change one variable per test.</strong> Every multi-directive removal in the compose saga was still done one directive at a time, specifically so each redeploy's result was unambiguous.</li>
+    </ol>
+  </section>
+
+  <section id="sources">
+    <h3>8.2 Where to find ground truth for this specific project</h3>
+    <table>
+      <tr><th>Question</th><th>Where to actually check</th></tr>
+      <tr><td>"What does this Homepage config key do?"</td><td><a href="https://gethomepage.dev/">gethomepage.dev</a> docs — and if the docs are ambiguous, Homepage's own source on GitHub (<code>gethomepage/homepage</code>), specifically <code>src/</code>.</td></tr>
+      <tr><td>"What fields does Glances' API actually return?"</td><td>Glances' own plugin source, e.g. <code>glances/plugins/cpu/__init__.py</code> — the field names used in <span class="fpath">system_metrics_collector.py</span> were all confirmed this way, not guessed from the docs alone.</td></tr>
+      <tr><td>"What does What's Up Docker's API return?"</td><td>WUD's own published OpenAPI spec (<code>app/api/openapi.yaml</code> in its repo).</td></tr>
+      <tr><td>"Is this container actually running, and as what project name?"</td><td>From the NAS itself: <code>docker ps</code>, or the fuller <code>curl http://127.0.0.1:2375/containers/json</code> through the socket proxy — this is exactly how the Kopia/WUD project-name mismatches were caught.</td></tr>
+      <tr><td>"Did my change actually deploy?"</td><td>Read the live file back from the NAS (via the Finder-mounted share) and compare it to what you meant to deploy, or hit the collector's own HTTP endpoint directly with <code>curl</code>.</td></tr>
+    </table>
+  </section>
+</section>
+
+<section id="glossary">
+  <h2>Glossary</h2>
+  <dl class="glossary">
+    <dt>API (Application Programming Interface)</dt><dd>A defined way for one program to ask another program for data or to do something, usually over HTTP as JSON in this project.</dd>
+    <dt>Bind mount</dt><dd>Making a specific folder/file on the host machine visible inside a container at some path, via Compose's <code>volumes:</code>.</dd>
+    <dt>CORS (Cross-Origin Resource Sharing)</dt><dd>The mechanism a server uses to opt in to letting a browser page from a different origin read its responses. See Part 3.3.</dd>
+    <dt>DNS (Domain Name System)</dt><dd>Translates a domain name into the IP address to actually connect to.</dd>
+    <dt>DOM (Document Object Model)</dt><dd>The live tree of elements that currently makes up a web page, as the browser actually holds it in memory.</dd>
+    <dt>Docker Compose</dt><dd>A tool + YAML file format for defining and running a group of related containers together.</dd>
+    <dt>Environment variable</dt><dd>A named text value passed into a running program at startup, outside of any code/config file the program itself contains.</dd>
+    <dt>IIFE</dt><dd>Immediately-Invoked Function Expression — a function defined and called in one step, used to keep its variables private. See Part 1.3.</dd>
+    <dt>JSON</dt><dd>A text format for structured data (objects/arrays/strings/numbers), modeled on JavaScript's own object syntax.</dd>
+    <dt>LAN</dt><dd>Local Area Network — your home network, as opposed to the wider internet.</dd>
+    <dt>Origin</dt><dd>Protocol + domain/IP + port, taken together. Two URLs differing in any of those three are different origins to a browser.</dd>
+    <dt>PUID / PGID</dt><dd>The numeric user ID / group ID a containerized program should run as, matching a real user on the host so file ownership lines up correctly.</dd>
+    <dt>Reconciliation</dt><dd>React's process of comparing its previous and current in-memory view of the page and applying only the minimal real change needed. See Part 4.2.</dd>
+    <dt>Reverse proxy</dt><dd>A server that sits in front of other servers and routes incoming requests to the right one.</dd>
+    <dt>SSR (Server-Side Rendering)</dt><dd>Generating a page's initial HTML on the server, before it ever reaches the browser, rather than building it entirely with client-side JavaScript.</dd>
+    <dt>SVG</dt><dd>Scalable Vector Graphics — an XML-based format for describing shapes with math rather than a grid of pixels, embeddable directly in HTML.</dd>
+    <dt>TLS</dt><dd>Transport Layer Security — the encryption behind HTTPS.</dd>
+    <dt>YAML</dt><dd>A human-readable text format for structured configuration, using indentation to express nesting. See Part 2.1.</dd>
+  </dl>
+</section>
+
+</main>
+</div>
+</body>
+</html>
