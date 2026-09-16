@@ -7,7 +7,7 @@ apply regardless of which specific task you were opened for.
 ## What this is
 
 A local mirror of `/volume1/docker/` on the NAS (UGREEN DXP2800, UGOS
-Pro, 192.168.1.16, domain nmtaylor.org via Cloudflare). `compose/<project>/`
+Pro, 192.168.1.10, domain example.com via Cloudflare). `compose/<project>/`
 and `appdata/<project>/` here correspond 1:1 to the same paths there.
 See `README.md` for the full layout and the per-project table.
 

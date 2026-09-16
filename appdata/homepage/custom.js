@@ -126,9 +126,9 @@
 // not another container, and read-only hardware stats are low-risk to
 // expose compared to the Docker-API-touching services elsewhere in this
 // stack). Fetches the current host by hostname, so it works correctly
-// when viewing the dashboard at its LAN address (192.168.1.16:3000) and
+// when viewing the dashboard at its LAN address (192.168.1.10:3000) and
 // fails closed (shows "—", not an error) over remote/cellular access via
-// dash.nmtaylor.org, since port 9200 was never forwarded there — that's
+// dash.example.com, since port 9200 was never forwarded there — that's
 // expected, not a bug: this panel is a LAN-only convenience. Weather
 // stays fetched server-side by the collector (not straight from Open-
 // Meteo here in the browser) so the home coordinates never appear in a

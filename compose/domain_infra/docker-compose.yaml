@@ -18,7 +18,7 @@ services:
     network_mode: host
     environment:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-      - DOMAINS=media.nmtaylor.org
+      - DOMAINS=media.example.com
       - PROXIED=false
       - IP6_PROVIDER=none
     restart: unless-stopped

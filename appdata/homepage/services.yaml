@@ -7,7 +7,7 @@
 - Infrastructure:
     - Caddy:
         icon: caddy.png
-        href: https://192.168.1.16:9443
+        href: https://192.168.1.10:9443
         description: Reverse proxy — TLS termination
         server: my-docker
         container: caddy
@@ -20,7 +20,7 @@
 
     - Vaultwarden:
         icon: vaultwarden.png
-        href: https://vault.nmtaylor.org
+        href: https://vault.example.com
         description: Password vault (via Cloudflare Tunnel)
         server: my-docker
         container: vaultwarden
@@ -28,7 +28,7 @@
 - Smart Home:
     - Home Assistant:
         icon: home-assistant.png
-        href: http://192.168.1.16:8123
+        href: http://192.168.1.10:8123
         description: Smart home automation platform
         widget:
           type: homeassistant
@@ -38,7 +38,7 @@
 - Monitoring:
     - Uptime Kuma:
         icon: uptime-kuma.png
-        href: http://192.168.1.16:3001
+        href: http://192.168.1.10:3001
         description: Uptime monitoring
         widget:
           type: uptimekuma
@@ -54,7 +54,7 @@
 - Media Library:
     - Jellyfin:
         icon: jellyfin.png
-        href: https://media.nmtaylor.org
+        href: https://media.example.com
         description: Primary media streaming library
         server: my-docker
         container: jellyfin

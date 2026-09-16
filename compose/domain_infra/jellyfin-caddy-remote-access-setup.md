@@ -1,10 +1,10 @@
 # Jellyfin Remote Access Setup Reference
 
-**Domain:** `media.nmtaylor.org`  
-**NAS:** UGREEN DXP2800 (UGOS Pro) at `192.168.1.16`  
+**Domain:** `media.example.com`  
+**NAS:** UGREEN DXP2800 (UGOS Pro) at `192.168.1.10`  
 **Jellyfin container:** `nmt_jellyfin` (host network, port 8096)  
 **Reverse proxy:** Caddy with Cloudflare DNS challenge on port 8443  
-**Last verified:** July 2026 — all tests passed (local `:8443`, cellular `https://media.nmtaylor.org`)
+**Last verified:** July 2026 — all tests passed (local `:8443`, cellular `https://media.example.com`)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ```
 Phone / TV app
-  → https://media.nmtaylor.org (port 443, internet)
+  → https://media.example.com (port 443, internet)
   → Optimum router (port forward 443 → NAS:8443)
   → Caddy (HTTPS termination, Let's Encrypt via Cloudflare DNS)
   → Jellyfin at 127.0.0.1:8096 (HTTP, localhost only)
@@ -43,7 +43,7 @@ UGOS Pro reserves standard web ports for the NAS admin UI, even when custom admi
 | 9443 | NAS admin HTTPS |
 | 9999 | NAS admin HTTP |
 
-**Solution:** Run Caddy on **8443**, forward router **443 → 8443**. Clients still use `https://media.nmtaylor.org` with no port in the URL.
+**Solution:** Run Caddy on **8443**, forward router **443 → 8443**. Clients still use `https://media.example.com` with no port in the URL.
 
 ### Why not the official `caddy:2-alpine` image alone
 
@@ -71,13 +71,13 @@ docker buildx build --platform linux/amd64 -t caddy-cloudflare:latest --load .
 
 | Type | Name | Content | Proxy |
 |------|------|---------|-------|
-| A | `media` | Public IP (e.g. `68.199.46.123`) | **DNS only (grey cloud)** |
+| A | `media` | Public IP (e.g. `203.0.113.45`) | **DNS only (grey cloud)** |
 
-**Critical:** Must be your **public** IP, not `192.168.1.16`.
+**Critical:** Must be your **public** IP, not `192.168.1.10`.
 
 ### API token
 
-Cloudflare → **My Profile** → **API Tokens** → **Create Token** → template **Edit zone DNS** → scope to `nmtaylor.org` only.
+Cloudflare → **My Profile** → **API Tokens** → **Create Token** → template **Edit zone DNS** → scope to `example.com` only.
 
 Used by:
 - Caddy container (`CLOUDFLARE_API_TOKEN`) — certificate issuance
@@ -97,7 +97,7 @@ Used by:
 | Redirect port 80 to HTTP port | Enabled (OK — Caddy does not need 80) |
 | Redirect port 443 to HTTPS port | Can stay enabled — Caddy uses 8443, not 443 |
 
-**NAS admin bookmark:** `https://192.168.1.16:9443`
+**NAS admin bookmark:** `https://192.168.1.10:9443`
 
 ---
 
@@ -118,11 +118,11 @@ Let's Encrypt has no separate config file. Caddy stores certs automatically unde
 
 ```caddyfile
 {
-    email nick@nmtaylor.org
+    email nick@example.com
     auto_https disable_redirects
 }
 
-media.nmtaylor.org:8443 {
+media.example.com:8443 {
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
@@ -141,7 +141,7 @@ media.nmtaylor.org:8443 {
 **Notes:**
 - `8096` is correct even though clients use HTTPS — Caddy terminates TLS.
 - `auto_https disable_redirects` prevents Caddy from binding port 80 (UGOS owns it).
-- Published URL for apps is `https://media.nmtaylor.org` (no `:8443`).
+- Published URL for apps is `https://media.example.com` (no `:8443`).
 
 ---
 
@@ -238,7 +238,7 @@ No port mappings when using host network.
 | Name | Value |
 |------|--------|
 | `CLOUDFLARE_API_TOKEN` | Same scoped token |
-| `DOMAINS` | `media.nmtaylor.org` |
+| `DOMAINS` | `media.example.com` |
 | `PROXIED` | `false` |
 
 **Do not use** `oznu/cloudflare-ddns` — archived, unmaintained. Use `favonia/cloudflare-ddns`.
@@ -261,7 +261,7 @@ No volumes required.
 
 | Setting | Value |
 |---------|--------|
-| Published Server URL | `https://media.nmtaylor.org` |
+| Published Server URL | `https://media.example.com` |
 | Base URL | *(empty)* |
 | Known Proxies | `127.0.0.1` |
 | Allow remote connections | Enabled |
@@ -279,13 +279,13 @@ No volumes required.
 
 ### DHCP reservation
 
-Reserve `192.168.1.16` for the NAS so the IP does not change.
+Reserve `192.168.1.10` for the NAS so the IP does not change.
 
 ### Port forwarding
 
 | Name | Protocol | External | Internal IP | Internal port |
 |------|----------|----------|-------------|---------------|
-| Jellyfin-Caddy | TCP | 443 | 192.168.1.16 | **8443** |
+| Jellyfin-Caddy | TCP | 443 | 192.168.1.10 | **8443** |
 
 **Do not forward:** 80, 8096, 9443, 9999, 2019.
 
@@ -302,13 +302,13 @@ Compare [whatismyip.com](https://whatismyip.com) (on home Wi-Fi) to router WAN I
 
 | # | Test | How | Expected |
 |---|------|-----|----------|
-| 1 | DNS | `nslookup media.nmtaylor.org` | Public IP, not `192.168.1.16` |
+| 1 | DNS | `nslookup media.example.com` | Public IP, not `192.168.1.10` |
 | 2 | Caddy logs | UGOS Docker → caddy | `server running`, cert obtained |
-| 3 | Local | Wi-Fi → `https://media.nmtaylor.org:8443` | Jellyfin login |
-| 4 | Remote | Cellular → `https://media.nmtaylor.org` | Jellyfin login, valid HTTPS |
+| 3 | Local | Wi-Fi → `https://media.example.com:8443` | Jellyfin login |
+| 4 | Remote | Cellular → `https://media.example.com` | Jellyfin login, valid HTTPS |
 | 5 | Caddy activity | Load site on cellular, watch logs | New log lines appear |
 
-**Ignore** `https://192.168.1.16` (raw IP) as a Caddy test — Caddy is configured for the hostname, not the IP.
+**Ignore** `https://192.168.1.10` (raw IP) as a Caddy test — Caddy is configured for the hostname, not the IP.
 
 **Cellular** is the real remote test. Home Wi-Fi may behave oddly due to hairpin NAT.
 
@@ -319,7 +319,7 @@ Compare [whatismyip.com](https://whatismyip.com) (on home Wi-Fi) to router WAN I
 Server address on all devices:
 
 ```
-https://media.nmtaylor.org
+https://media.example.com
 ```
 
 No port number.
@@ -341,7 +341,7 @@ DLNA does not work remotely — native apps or browser only.
 |---------|--------------|-----|
 | `SSL_PROTOCOL_ERROR` | UGOS on 443, not Caddy | Caddy on 8443; forward 443 → 8443 |
 | No Caddy logs on cellular | Traffic not reaching Caddy | Port forward; CGNAT check |
-| NAS UI at `media.nmtaylor.org` | DNS pointed at LAN IP or UGOS on 443 | Fix A record; use 8443 path |
+| NAS UI at `media.example.com` | DNS pointed at LAN IP or UGOS on 443 | Fix A record; use 8443 path |
 | Caddy won't start: port 80 in use | UGOS owns 80 | Add `auto_https disable_redirects` to Caddyfile |
 | Caddy won't start: port 443 in use | UGOS owns 443 | Use 8443 + DNS challenge |
 | Wrong architecture on import | Built arm64 on Mac | Rebuild with `--platform linux/amd64` |
@@ -378,23 +378,23 @@ DLNA does not work remotely — native apps or browser only.
 - Caddy renews Let's Encrypt certs automatically.
 - Periodically update Jellyfin, Caddy image, and DDNS container in UGOS Docker.
 - Only port **443** should remain forwarded on the router.
-- NAS admin stays at `https://192.168.1.16:9443` — never forward 9443.
+- NAS admin stays at `https://192.168.1.10:9443` — never forward 9443.
 
 ---
 
 ## Quick Reference Card
 
 ```
-Jellyfin URL (apps):     https://media.nmtaylor.org
-NAS admin:               https://192.168.1.16:9443
-NAS local IP:            192.168.1.16
+Jellyfin URL (apps):     https://media.example.com
+NAS admin:               https://192.168.1.10:9443
+NAS local IP:            192.168.1.10
 Jellyfin internal:       127.0.0.1:8096
 Caddy listens:           8443
-Router forwards:         443 → 192.168.1.16:8443
-Cloudflare DNS:          media.nmtaylor.org → public IP (grey cloud)
+Router forwards:         443 → 192.168.1.10:8443
+Cloudflare DNS:          media.example.com → public IP (grey cloud)
 Caddy image:             caddy-cloudflare:latest (amd64, custom build)
 DDNS image:              favonia/cloudflare-ddns:latest
-Let's Encrypt email:     nick@nmtaylor.org
+Let's Encrypt email:     nick@example.com
 ```
 
 ---

@@ -125,7 +125,7 @@ The `kopia snapshot create` calls just establish each path as a known
 source and take the first snapshot immediately; the `policy set` calls
 are what make it recurring. As long as the server keeps running, it
 snapshots on schedule with no cron needed. Check progress any time at
-`http://192.168.1.16:51515` (server username/password from `.env`), or
+`http://192.168.1.10:51515` (server username/password from `.env`), or
 `docker exec kopia kopia snapshot list`.
 
 ## Why back up `/volume1/docker` at all — isn't that already in GitHub?

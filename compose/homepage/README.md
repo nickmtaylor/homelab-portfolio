@@ -174,8 +174,8 @@ doesn't enforce CORS, still succeeds). Fixed in
 
 - **Weather widget**: added to `widgets.yaml` using Homepage's native
   `openmeteo` provider — no API key needed, just approximate lat/long.
-- **Title**: changed from "GexZ-style dashboard for nmtaylor.org" to
-  `nmtaylor.org`.
+- **Title**: changed from "GexZ-style dashboard for example.com" to
+  `example.com`.
 - **Kopia card removed** from `services.yaml` for now — see below.
 - **Corrected a stale instruction**: the reddit repo's own docs said to
   drop `custom.css`/`custom.js` into a `public/` folder. Checked against
@@ -232,7 +232,7 @@ the way they are" reference.
   inspected their live compose files via the `/Volumes/docker` mount, so
   I'm not starting blind).
 
-- **Basic auth on `dash.nmtaylor.org`**: required, not optional, if you want
+- **Basic auth on `dash.example.com`**: required, not optional, if you want
   this dashboard password-protected at all. Checked against current docs —
   Homepage has no built-in login of its own (unlike Jellyfin/Home
   Assistant, which each have their own app-level login). Caddy's

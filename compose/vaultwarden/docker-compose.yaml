@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=America/New_York
-      - DOMAIN=https://vault.nmtaylor.org
+      - DOMAIN=https://vault.example.com
       - SIGNUPS_ALLOWED=false
       - WEBSOCKET_ENABLED=true
       - ROCKET_PORT=8222

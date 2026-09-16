@@ -539,8 +539,8 @@ setInterval(refresh, POLL_MS);</code></pre>
   <section id="yaml-basics">
     <h3>2.1 YAML syntax</h3>
     <h4>Key-value pairs</h4>
-    <pre><code><span class="attr">title</span>: nmtaylor.org</code></pre>
-    <p>A colon <em>followed by a space</em> separates a key from its value. <code>title:nmtaylor.org</code> (no space) is <strong>not valid</strong> — this is the single most common way to break a YAML file by hand.</p>
+    <pre><code><span class="attr">title</span>: example.com</code></pre>
+    <p>A colon <em>followed by a space</em> separates a key from its value. <code>title:example.com</code> (no space) is <strong>not valid</strong> — this is the single most common way to break a YAML file by hand.</p>
 
     <h4>Indentation is the entire structure</h4>
     <p>YAML has no braces or brackets for nesting — <strong>indentation is the only thing that expresses "this is inside that."</strong> From <span class="fpath">appdata/widgets.yaml</span> (an earlier version, before it was emptied out):</p>
@@ -566,7 +566,7 @@ setInterval(refresh, POLL_MS);</code></pre>
 <span class="attr">environment</span>: [TZ=America/New_York, GLANCES_OPT=-w]</code></pre>
 
     <h4>Strings: quoted vs. unquoted</h4>
-    <p>Most plain text doesn't need quotes at all — <code>title: nmtaylor.org</code> just works. Quotes become necessary when the value could otherwise be misread as something else:</p>
+    <p>Most plain text doesn't need quotes at all — <code>title: example.com</code> just works. Quotes become necessary when the value could otherwise be misread as something else:</p>
     <table>
       <tr><th>Situation</th><th>Example</th></tr>
       <tr><td>Value starts with a special character (<code>{</code>, <code>[</code>, <code>#</code>, <code>&amp;</code>, <code>*</code>...)</td><td><code>latitude: "{{HOMEPAGE_VAR_WEATHER_LATITUDE}}"</code></td></tr>
@@ -679,22 +679,22 @@ setInterval(refresh, POLL_MS);</code></pre>
     <table>
       <tr><th>Address</th><th>Reaches</th></tr>
       <tr><td><code>127.0.0.1</code> ("localhost")</td><td>Only the exact same machine making the request. A browser on your phone can never reach <code>127.0.0.1:9200</code> and mean the NAS — it always means "my own phone."</td></tr>
-      <tr><td><code>192.168.1.16</code></td><td>Any device on the same local network (LAN) — your home Wi-Fi/ethernet, not the internet.</td></tr>
-      <tr><td><code>dash.nmtaylor.org</code></td><td>Anyone, anywhere on the internet who knows the domain — resolved to a real IP via DNS (3.2), then routed in from outside your home network.</td></tr>
+      <tr><td><code>192.168.1.10</code></td><td>Any device on the same local network (LAN) — your home Wi-Fi/ethernet, not the internet.</td></tr>
+      <tr><td><code>dash.example.com</code></td><td>Anyone, anywhere on the internet who knows the domain — resolved to a real IP via DNS (3.2), then routed in from outside your home network.</td></tr>
     </table>
     <div class="callout why"><span class="tag">Why it matters</span><p>This hierarchy is exactly why <code>docker-socket-proxy</code> and <code>glances</code> bind their ports to <code>127.0.0.1:PORT</code> specifically — it's a deliberate statement that "only the NAS itself may ever connect to this," which rules out the entire LAN and internet at once, regardless of any firewall rule. It's also why the System panel's metrics collector binds to <code>0.0.0.0</code> (meaning "listen on every network interface, so anyone who can reach this machine at all can connect") instead — because unlike the other two, your own <em>browser</em> (on your phone, laptop, etc.) needs to reach it directly across the LAN, not just the NAS talking to itself.</p></div>
   </section>
 
   <section id="dns-proxy">
     <h3>3.2 DNS, reverse proxies, and TLS</h3>
-    <p><strong>DNS</strong> (Domain Name System) is the internet's phone book — it turns a name like <code>nmtaylor.org</code> into an actual IP address. Cloudflare DDNS (Dynamic DNS) in this project's Infrastructure group exists because most home internet connections don't have a fixed IP — it periodically checks your home's current public IP and updates Cloudflare's DNS record to match, so the domain keeps pointing at the right place even after your ISP changes it.</p>
-    <p>A <strong>reverse proxy</strong> (Caddy, here) sits in front of your actual services and routes incoming requests to the right one based on the domain name requested — <code>dash.nmtaylor.org</code> gets routed to Homepage's container, while a different subdomain gets routed elsewhere, all while only one thing (Caddy) is actually exposed to the internet. Caddy also does <strong>TLS termination</strong>: it's the thing that holds the actual HTTPS certificate and encrypts/decrypts traffic, so the containers behind it can speak plain unencrypted HTTP to each other on the trusted local side.</p>
-    <p><strong>Basic auth</strong> is the simplest possible password-protection: the browser pops up a native username/password prompt before it'll let you through at all, enforced by Caddy before a request ever reaches Homepage. Homepage has no login system of its own, so this is the only thing stopping a stranger who discovers <code>dash.nmtaylor.org</code> from seeing your dashboard.</p>
+    <p><strong>DNS</strong> (Domain Name System) is the internet's phone book — it turns a name like <code>example.com</code> into an actual IP address. Cloudflare DDNS (Dynamic DNS) in this project's Infrastructure group exists because most home internet connections don't have a fixed IP — it periodically checks your home's current public IP and updates Cloudflare's DNS record to match, so the domain keeps pointing at the right place even after your ISP changes it.</p>
+    <p>A <strong>reverse proxy</strong> (Caddy, here) sits in front of your actual services and routes incoming requests to the right one based on the domain name requested — <code>dash.example.com</code> gets routed to Homepage's container, while a different subdomain gets routed elsewhere, all while only one thing (Caddy) is actually exposed to the internet. Caddy also does <strong>TLS termination</strong>: it's the thing that holds the actual HTTPS certificate and encrypts/decrypts traffic, so the containers behind it can speak plain unencrypted HTTP to each other on the trusted local side.</p>
+    <p><strong>Basic auth</strong> is the simplest possible password-protection: the browser pops up a native username/password prompt before it'll let you through at all, enforced by Caddy before a request ever reaches Homepage. Homepage has no login system of its own, so this is the only thing stopping a stranger who discovers <code>dash.example.com</code> from seeing your dashboard.</p>
   </section>
 
   <section id="cors">
     <h3>3.3 The same-origin policy &amp; CORS</h3>
-    <p>An <strong>origin</strong> is the combination of protocol + domain/IP + port — <code>http://192.168.1.16:3000</code> and <code>http://192.168.1.16:9200</code> are <strong>different origins</strong>, purely because the port differs, even though it's the exact same machine. Browsers enforce a rule called the <strong>same-origin policy</strong>: JavaScript running on a page from one origin is not allowed to read the response of a request to a different origin, unless that other origin explicitly opts in.</p>
+    <p>An <strong>origin</strong> is the combination of protocol + domain/IP + port — <code>http://192.168.1.10:3000</code> and <code>http://192.168.1.10:9200</code> are <strong>different origins</strong>, purely because the port differs, even though it's the exact same machine. Browsers enforce a rule called the <strong>same-origin policy</strong>: JavaScript running on a page from one origin is not allowed to read the response of a request to a different origin, unless that other origin explicitly opts in.</p>
     <p>That opt-in mechanism is <strong>CORS</strong> (Cross-Origin Resource Sharing): the server being requested adds a response header, <code>Access-Control-Allow-Origin</code>, saying who's allowed to read its responses.</p>
     <div class="callout debug"><span class="tag">Debugging story</span><p>The System panel worked perfectly when tested with <code>curl</code> from the NAS's own terminal, but showed nothing in the actual browser. The reason: <code>curl</code> is not a browser and doesn't enforce CORS at all — it happily reads any response. The dashboard page (port 3000) and the metrics collector (port 9200) are different origins to a <em>browser</em>, though, so <code>fetch()</code> inside <span class="fpath">custom.js</span> was being silently blocked by the browser itself, even though the request reached the collector and got a perfectly good response. The fix was one line on the server side: <code>self.send_header("Access-Control-Allow-Origin", "*")</code> in <span class="fpath">system_metrics_collector.py</span>. The lesson generalizes well beyond this project: whenever something works from a command line but not from a page in an actual browser, CORS is one of the first things to suspect — check the browser's DevTools Console (as you did) for a red "blocked by CORS policy" message, which says so explicitly.</p></div>
     <p><code>Access-Control-Allow-Origin: *</code> (a wildcard) means "anyone may read this." That's a reasonable choice here specifically because the data is read-only, non-secret, and already only reachable on your own LAN in the first place — a wildcard would be a much bigger deal on something that returns private data or accepts write requests.</p>
@@ -806,7 +806,7 @@ ThreadingHTTPServer((bind, port), Handler).serve_forever()</code></pre>
     <h3>6.2 Data-flow walkthroughs</h3>
     <h4>Loading the dashboard for the first time</h4>
     <ol>
-      <li>Your browser requests <code>dash.nmtaylor.org</code> (or <code>192.168.1.16:3000</code> directly on the LAN).</li>
+      <li>Your browser requests <code>dash.example.com</code> (or <code>192.168.1.10:3000</code> directly on the LAN).</li>
       <li>(Remote access only) Cloudflare DNS resolves the domain, Caddy receives the request, checks basic auth, and forwards it to Homepage's container.</li>
       <li>Homepage's Next.js server renders the initial page — reading <code>services.yaml</code>/<code>settings.yaml</code>/<code>widgets.yaml</code> to know what to draw — and sends back HTML plus links to its CSS/JS, including <code>custom.css</code> and <code>custom.js</code>.</li>
       <li>Your browser parses that HTML, requests <code>custom.css</code> and <code>custom.js</code>, and starts running React (this is "hydration" — attaching interactivity to already-rendered HTML).</li>

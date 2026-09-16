@@ -1,9 +1,9 @@
 {
-    email nick@nmtaylor.org
+    email nick@example.com
     auto_https disable_redirects
 }
 
-media.nmtaylor.org:8443 {
+media.example.com:8443 {
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }

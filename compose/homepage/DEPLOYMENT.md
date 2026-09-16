@@ -89,7 +89,7 @@ problem a Unix socket does, which is what makes this actually work.
 3. **Start the container** in UGOS Docker (new project, pointed at the
    compose file above).
 
-4. **Check it locally first**: `http://192.168.1.16:3000` — this is the
+4. **Check it locally first**: `http://192.168.1.10:3000` — this is the
    `HOMEPAGE_ALLOWED_HOSTS` entry doing its job. If you get a 403 here,
    that env var is the first thing to check.
 
@@ -97,21 +97,21 @@ problem a Unix socket does, which is what makes this actually work.
    - Add a new Cloudflare DNS **A record** for `dash` → your public IP,
      **grey cloud (DNS only)** — same as your `media` record.
    - Confirmed current `DOMAINS` value on `cloudflare-ddns`:
-     `media.nmtaylor.org`
-     — append `,dash.nmtaylor.org` to it.
+     `media.example.com`
+     — append `,dash.example.com` to it.
    - Append `caddy-dash-site-block.txt` to your existing Caddyfile
      (`/volume1/docker/appdata/caddy/Caddyfile`), fill in a real bcrypt
      hash, then **recreate** the Caddy container (editing the file on disk
      alone won't reload it).
    - Test over cellular, not home Wi-Fi, per the hairpin NAT issue you've
-     already hit with `media.nmtaylor.org`.
+     already hit with `media.example.com`.
 
 6. **Clean up the retired Homarr dashboard**, now that Homepage replaces
    it (its container's already been deleted):
-   - Remove the `hub.nmtaylor.org` block from the Caddyfile.
+   - Remove the `hub.example.com` block from the Caddyfile.
    - Delete `compose/homarr/` and `appdata/homarr/` on the NAS once
      you're confident you don't need anything from the old config.
-   - Delete or repoint `hub.nmtaylor.org`'s Cloudflare A record — it
+   - Delete or repoint `hub.example.com`'s Cloudflare A record — it
      isn't in `cloudflare-ddns`'s `DOMAINS` list, so it won't auto-update.
 
 7. **Verify the theme.** `custom.css`/`custom.js` go in the same
@@ -151,7 +151,7 @@ on every card until you deploy this.
 
 2. **Start the project** in UGOS Docker — brings up two containers:
    `whatsupdocker` (the actual update-checker, web UI at
-   `http://192.168.1.16:3002`) and `wud-stacks-collector` (the small
+   `http://192.168.1.10:3002`) and `wud-stacks-collector` (the small
    script that turns WUD's per-container data into per-project counts).
 
 3. **Verify**: `curl http://127.0.0.1:9100/stacks` from the NAS should
@@ -228,8 +228,8 @@ track total CPU or sensor data — see the comments in
    (decimal TB, `used_bytes`/`size_bytes` from `primary_disk`), not a
    percentage.
 6. **Known limitation, not a bug**: the panel only populates real data
-   when viewed at the NAS's LAN address (`192.168.1.16:3000`). Over
-   remote/cellular access via `dash.nmtaylor.org`, it'll just show "—"
+   when viewed at the NAS's LAN address (`192.168.1.10:3000`). Over
+   remote/cellular access via `dash.example.com`, it'll just show "—"
    for everything — port `9200` was never forwarded there, deliberately.
    This is a LAN-only convenience panel, not meant to be reachable from
    outside.

@@ -5,7 +5,7 @@ compose file.
 
 ## caddy
 
-Reverse proxy in front of everything exposed at `*.nmtaylor.org` —
+Reverse proxy in front of everything exposed at `*.example.com` —
 terminates HTTPS and routes each subdomain to the right container's
 port. Uses a Cloudflare-DNS-plugin build (`caddy-cloudflare`, not stock
 Caddy) so it can issue/renew certs via DNS-01 challenge against

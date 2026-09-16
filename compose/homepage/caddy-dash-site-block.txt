@@ -12,7 +12,7 @@
 # backend services' API keys, plus links to LAN-only tools.
 # Generate the hash with: docker exec caddy caddy hash-password
 
-dash.nmtaylor.org:8443 {
+dash.example.com:8443 {
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }

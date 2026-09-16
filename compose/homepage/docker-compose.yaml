@@ -11,7 +11,7 @@ services:
       # LAN IP:port for direct access, plus the public domain (no port —
       # the browser's own Host header omits it on the default HTTPS port).
       # Add both or Homepage 403s.
-      - HOMEPAGE_ALLOWED_HOSTS=192.168.1.16:3000,dash.nmtaylor.org
+      - HOMEPAGE_ALLOWED_HOSTS=192.168.1.10:3000,dash.example.com
     env_file:
       - .env
     volumes:
