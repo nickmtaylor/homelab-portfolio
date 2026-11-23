@@ -7,18 +7,19 @@ Over the summer I purchased a network-attached storage (NAS) server, and since t
 I was first introduced to AI tools like Claude Code and Cursor at the start of 2026, and have been fascinated at the speed of development in the industry as these tools have become more pervasive. I started this project with limited technical experience in software engineering, and while applications like Docker make it very easy to deploy these systems, I want to keep my skills sharp as I look for my next professional opportunity. This repository is a selection of infrastructure that is currently deployed on my home server (Claude Code’s features to deploy PRs directly into GitHub really came in handy here). All of the data has been scrubbed of any PII for my specific system.
 
 Here’s a quick rundown of what you’ll see:
-
-/appdata/: All of the system-specific configuration lives here (caches, logs, settings, etc.). You’ll see a variety of different files here.
-/config/: All of the .yaml configuration files Docker uses to deploy each system/combination of systems. The Docker application in my server’s GUI would usually negate the need for an “infrastructure as code” (IaC) approach, but for the purposes of making changes to the configuration and to easily re-deploy the systems in the event of a failure, everything is written manually. Each system has a sidecar “CONTAINERS.md” file to act as a key.
-/scripts/: Functions that I allow Claude Code to run on my behalf for things like error-checking, scrubbing PII, and copying down live files from my server.
+| Path | Description |
+|---|---|
+| **/appdata/** | All of the system-specific configuration lives here (caches, logs, settings, etc.). You’ll see a variety of different files here.   |
+| **/config/** | All of the .yaml configuration files Docker uses to deploy each system/combination of systems. The Docker application in my server’s GUI would usually negate the need for an “infrastructure as code” (IaC) approach, but for the purposes of making changes to the configuration and to easily re-deploy the systems in the event of a failure, everything is written manually. Each system has a sidecar “CONTAINERS.md” file to act as a key.   |
+| **/scripts/** | Functions that I allow Claude Code to run on my behalf for things like error-checking, scrubbing PII, and copying down live files from my server. |
 
 ## My Systems
 
 | System | What it does |
 |---|---|
-| [`docker-socket-proxy`](compose/docker-socket-proxy/) | Least-privilege proxy in front of the Docker socket — nothing else touches it directly |
+| [`docker-socket-proxy`](compose/docker-socket-proxy/) | Direct connection to various Docker containers for homepage elements |
 | [`domain_infra`](compose/domain_infra/) | Caddy reverse proxy + TLS with Cloudflare's dynamic DNS, used for remote HTTPS access |
-| [`glances`](compose/glances/) | System metrics that feeding a dashboard widget |
+| [`glances`](compose/glances/) | System metrics that feed a dashboard widget |
 | [`home-assistant`](compose/home-assistant/) | Smart-home automation |
 | [`homepage`](compose/homepage/) | The status dashboard tying everything together — see its own README, deploy log, and a from-scratch study guide it generated while I was learning the stack |
 | [`jellyfin`](compose/jellyfin/) | Self-hosted media server |
