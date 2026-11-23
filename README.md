@@ -1,104 +1,28 @@
-# homelab
+# Nick's Homelab
 
-This is a personal, self-hosted infrastructure project — nine Docker
-Compose services running on a home NAS (reverse proxy + TLS, a
-password vault, smart-home automation, monitoring, encrypted offsite
-backups, a status dashboard) — published as a curated subset of a
-larger private repo.
+Hello and welcome to my GitHub portfolio! I’m glad you’re here!
 
-The infrastructure itself isn't really the point. I work in client
-services and software implementation, not engineering, and I'm not
-applying for engineering roles. What this repo is actually meant to
-show is **how I direct an AI coding agent (Claude Code) through real,
-live systems with real constraints** — not "write me an email," but
-root-cause debugging, architecture decisions, and building the
-guardrails that keep an agent from doing something careless to
-something that actually matters. That's a skill that transfers
-directly to implementation work: scoping what a tool is allowed to
-touch, verifying its output instead of trusting it, and documenting
-decisions clearly enough that someone else (or a future session) can
-pick them up cold.
+Over the summer I purchased a network-attached storage (NAS) server, and since then I’ve been building what enthusiasts call a “homelab”, or a personal cloud server. I first became interested in building a homelab a few years ago after my family moved out of my childhood home. We had this really old Dell computer tower that wouldn’t boot up after ~15 yrs of use, but I knew there were thousands of pictures, videos, and documents still on the hard drive that I wanted to preserve. Preserving old photos through stale backups eventually turned into the desire to share said content without a subscription, which then turned into a way to automate smart home devices, hold passwords, create encrypted off-site backups of sensitive data, and more. Each new deployment gave rise to the next one like a snowball picking up more snow as it careens down a mountain. I preach the importance of “systems exposure” to my clients through their SaaS deployments: the quicker someone can actually click around in a tool and get hands-on experience, the greater frequency of “lightbulb” moments take place where connections are made between what they see and what they want.
 
-Two things worth reading first, because they're the actual evidence:
+I was first introduced to AI tools like Claude Code and Cursor at the start of 2026, and have been fascinated at the speed of development in the industry as these tools have become more pervasive. I started this project with limited technical experience in software engineering, and while applications like Docker make it very easy to deploy these systems, I want to keep my skills sharp as I look for my next professional opportunity. This repository is a selection of infrastructure that is currently deployed on my home server (Claude Code’s features to deploy PRs directly into GitHub really came in handy here). All of the data has been scrubbed of any PII for my specific system.
 
-## 1. The guardrails: [`CLAUDE.md`](CLAUDE.md)
+Here’s a quick rundown of what you’ll see:
 
-Before ever pointing an agent at this project, I wrote it a standing
-set of rules — not a one-off prompt, a persistent contract every
-session has to follow regardless of what task it opens for. The core
-of it is a hard boundary: this repo is read/write, but the Finder-mounted
-share to the *live* NAS is read-only, always, no exceptions, even when
-a task would be more convenient if the agent could just write there
-directly. Deploying a change to the real NAS is a manual step I
-perform myself, on purpose — automating that end-to-end was considered
-and deliberately deferred.
+/appdata/: All of the system-specific configuration lives here (caches, logs, settings, etc.). You’ll see a variety of different files here.
+/config/: All of the .yaml configuration files Docker uses to deploy each system/combination of systems. The Docker application in my server’s GUI would usually negate the need for an “infrastructure as code” (IaC) approach, but for the purposes of making changes to the configuration and to easily re-deploy the systems in the event of a failure, everything is written manually. Each system has a sidecar “CONTAINERS.md” file to act as a key.
+/scripts/: Functions that I allow Claude Code to run on my behalf for things like error-checking, scrubbing PII, and copying down live files from my server.
 
-That boundary isn't theoretical. It held under real pressure once: a
-session tried to bulk-copy live files (several of them containing real
-secrets) directly from the read-only share, and the safety design
-stopped it. That's the point of writing the rule down before you need
-it, not after.
+## My Systems
 
-## 2. Two problems this actually helped solve
-
-**Rebuilding backups that had been silently broken for months**
-([`compose/kopia/`](compose/kopia/)). The backup container had been
-crash-looping for a long time, and in the meantime the "offsite backup"
-was, in practice, just a manual drive clone — nobody had gone back to
-find out why. Diagnosing it meant reading the actual container logs on
-the live NAS (through the read-only mount, not guessing from the
-compose file) to find the real cause: the repository config pointed at
-a local filesystem path that was never actually mounted, so every
-startup failed with "BLOB not found" against a repository that never
-existed. The fix wasn't a restart — it was a real architecture change
-(move the whole repository into Cloudflare R2 so there's no local disk
-dependency at all), plus catching two non-obvious gotchas along the way:
-a Cloudflare R2 API token has to be account-scoped or object access
-silently fails, and a `docker exec` into the running server doesn't
-inherit its environment, so a background CLI call without the password
-passed explicitly fails with an opaque, unrelated-looking error. See
-the comment at the top of
-[`docker-compose.yaml`](compose/kopia/docker-compose.yaml) for the
-full root-cause writeup and [`README.md`](compose/kopia/README.md) for
-the rebuild.
-
-**Finding a live secrets leak during the repo's own setup.** While
-migrating this project into a proper repo, a review of what was about
-to be checked in turned up real, live credentials — several API keys, a
-service password, an access token — sitting in files that were
-*supposed* to hold placeholders only. That wasn't a hypothetical risk,
-it was already sitting there. The fix wasn't just deleting the values —
-it became a standing, automated control: a pre-commit hook
-([`scripts/check-no-secrets.sh`](scripts/check-no-secrets.sh)) that
-scans every future commit for anything that looks like a real secret
-and blocks it. The difference between "I found and fixed a problem" and
-"I found a problem and made it structurally harder to happen again" is
-most of what judgment means in this kind of work.
-
-## What's here
-
-| Project | What it does |
+| System | What it does |
 |---|---|
 | [`docker-socket-proxy`](compose/docker-socket-proxy/) | Least-privilege proxy in front of the Docker socket — nothing else touches it directly |
-| [`domain_infra`](compose/domain_infra/) | Caddy reverse proxy + TLS, Cloudflare dynamic DNS |
-| [`glances`](compose/glances/) | System metrics, feeding a dashboard widget |
+| [`domain_infra`](compose/domain_infra/) | Caddy reverse proxy + TLS with Cloudflare's dynamic DNS, used for remote HTTPS access |
+| [`glances`](compose/glances/) | System metrics that feeding a dashboard widget |
 | [`home-assistant`](compose/home-assistant/) | Smart-home automation |
 | [`homepage`](compose/homepage/) | The status dashboard tying everything together — see its own README, deploy log, and a from-scratch study guide it generated while I was learning the stack |
 | [`jellyfin`](compose/jellyfin/) | Self-hosted media server |
-| [`kopia`](compose/kopia/) | Encrypted, deduplicated offsite backups to Cloudflare R2 — see the rebuild story above |
+| [`kopia`](compose/kopia/) | Encrypted, deduplicated offsite backups to Cloudflare R2 |
 | [`uptime-kuma`](compose/uptime-kuma/) | Uptime/health monitoring |
-| [`vaultwarden`](compose/vaultwarden/) | Self-hosted password vault, exposed only via a Cloudflare Tunnel |
+| [`vaultwarden`](compose/vaultwarden/) | Self-hosted password vault connected to a Cloudflare Tunnel for remote access |
 | [`wud`](compose/wud/) | Checks every other container for available image updates |
-
-Every project follows the same pattern: a `docker-compose.yaml`, a
-`.env.template` with placeholders only (real secrets never get
-committed — see `CLAUDE.md`), and a `CONTAINERS.md` explaining what
-each container does and why, not just how it's configured.
-
-## What this isn't
-
-This is a curated excerpt of a larger private repo, trimmed to the
-parts relevant to this purpose — it's a proof of concept, not something
-meant to be cloned and deployed by a stranger. Some paths and hostnames
-are specific to my own setup and won't resolve for anyone else; that's
-fine, they're not the point.
